@@ -37,13 +37,34 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    # apps
     "users",
     "studios",
     "payments",
     "ratings",
     "chats",
+    # rest framework
+    'rest_framework',
+    'rest_framework_simplejwt',
 ]
 
+AUTH_USER_MODEL = "users.User"
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -72,7 +93,7 @@ TEMPLATES = [
     },
 ]
 
-AUTH_USER_MODEL = "users.User"
+
 
 WSGI_APPLICATION = "core.wsgi.application"
 

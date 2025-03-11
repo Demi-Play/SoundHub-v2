@@ -2,6 +2,10 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+
 class User(AbstractUser):
     USER_TYPES = (
         ('musician', 'Музыкант'),
@@ -22,3 +26,8 @@ class UserProfile(models.Model):
     genres = models.JSONField(default=list)
     # Для студий
     studio = models.ForeignKey('studios.Studio', null=True, blank=True, on_delete=models.SET_NULL)
+    
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
