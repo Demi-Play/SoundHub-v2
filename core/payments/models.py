@@ -11,9 +11,9 @@ class Transaction(models.Model):
     TRANSACTION_TYPES = (
         ('deposit', 'Пополнение'),
         ('withdrawal', 'Вывод'),
-        'payment',
-        'tip',
-        'commission'
+        ('payment', 'Оплата'),
+        ('tip', 'Чаевые'),
+        ('commission', 'Комиссия')
     )
     wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
