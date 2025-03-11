@@ -20,14 +20,15 @@ class StudioTests(TestCase):
             'name': 'Test Studio',
             'description': 'Test description',
             'address': 'Test address',
-            'equipment_list': ['Microphone', 'Mixer'],  # Список вместо строки
-            'pricing': {'recording': 100},  # Словарь вместо строки
+            'equipment_list': ['Microphone'],  # Список вместо строки
+            'pricing': {'recording': 100},     # Словарь вместо строки
             'commission_percent': 10
         }
         response = self.client.post('/api/studios/', data, format='json')
         self.assertEqual(response.status_code, 201)
 
     # В studios/tests.py исправляем данные PATCH-запроса:
+    # studios/tests.py
     def test_update_studio(self):
         studio = Studio.objects.create(
             owner=self.owner,

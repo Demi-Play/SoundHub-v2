@@ -21,9 +21,8 @@ class RatingTests(TestCase):
             name='Test Studio',
             commission_percent=10
         )
-        self.chat = Chat.objects.create(studio=self.studio)  # Добавляем studio
+        self.chat = Chat.objects.create(studio=self.studio)
         self.chat.participants.add(self.owner)
-        
         self.project = Project.objects.create(
             chat=self.chat,
             type='single',

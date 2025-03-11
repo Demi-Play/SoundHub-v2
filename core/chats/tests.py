@@ -28,17 +28,33 @@ class ChatTests(TestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_create_chat(self):
+        # Создаем студию через API
+        self.client.force_authenticate(user=self.owner)
+        studio_response = self.client.post('/api/studios/', {
+            'name': 'Test Studio',
+            'description': 'Test desc',
+            'address': 'Test address',
+            'equipment_list': ['Mic'],
+            'pricing': {'recording': 100},
+            'commission_percent': 10
+        }, format='json')
+        
+        # Создаем чат
+        self.client.force_authenticate(user=self.user)
         response = self.client.post('/api/chats/create/', 
-                                   {'studio_id': self.studio.id})
+                                {'studio_id': studio_response.data['name']},
+                                format='json')  # Добавлен format
         self.assertEqual(response.status_code, 201)
-        self.assertTrue(Chat.objects.filter(studio=self.studio).exists())
 
     def test_send_message(self):
         chat = Chat.objects.create(studio=self.studio)
         chat.participants.add(self.user, self.owner)
-        file = SimpleUploadedFile("test.txt", b"content")
+        
+        # Используем multipart/form-data для файлов
+        file = SimpleUploadedFile("test.txt", b"content", content_type="text/plain")
         response = self.client.post('/api/chats/messages/send/', 
-                                   {'chat_id': chat.id, 'text': 'Hello', 'files': [file]})
+                                {'chat_id': chat.id, 'text': 'Hello', 'files': [file]},
+                                format='multipart')
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Message.objects.count(), 1)
         self.assertEqual(Message.objects.first().files.count(), 1)

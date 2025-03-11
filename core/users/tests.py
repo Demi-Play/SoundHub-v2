@@ -21,6 +21,7 @@ class UserTests(TestCase):
         )
 
     # В users/tests.py добавляем обязательные поля профиля:
+    # users/tests.py
     def test_registration(self):
         data = {
             'username': 'testuser',
@@ -33,8 +34,9 @@ class UserTests(TestCase):
             }
         }
         response = self.client.post('/api/users/register/', data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(User.objects.filter(username='testuser').exists())
+        
     def test_login(self):
         User.objects.create_user(**self.user_data)
         response = self.client.post('/api/token/', {
@@ -55,11 +57,14 @@ class UserTests(TestCase):
         user = User.objects.create_user(**self.user_data)
         self.client.force_authenticate(user=user)
         
-        # Получаем токены
-        response = self.client.post('/api/token/')
-        refresh_token = response.data['refresh']
+        # Получаем токены через эндпоинт логина
+        login_response = self.client.post('/api/token/', {
+            'username': 'testuser',
+            'password': 'testpass123'
+        })
+        self.assertEqual(login_response.status_code, 200)
         
-        # Выходим
+        # Используем refresh токен для выхода
         response = self.client.post('/api/users/logout/', 
-                                {'refresh': refresh_token})
-        self.assertEqual(response.status_code, status.HTTP_205_RESET_CONTENT)
+                                {'refresh': login_response.data['refresh']})
+        self.assertEqual(response.status_code, 205)

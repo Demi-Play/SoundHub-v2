@@ -11,9 +11,11 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email', 'user_type', 'is_verified']
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username', read_only=True)
+
     class Meta:
         model = UserProfile
-        fields = ['avatar', 'bio', 'social_links', 'instruments', 'genres', 'studio']
+        fields = ['username', 'avatar', 'bio', 'social_links', 'instruments', 'genres', 'studio']
 
 class StudioVerificationSerializer(serializers.ModelSerializer):
     class Meta:
