@@ -3,8 +3,14 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
-from .serializers import UserSerializer, RegisterSerializer, UserProfileSerializer
+from .serializers import UserSerializer, RegisterSerializer, UserProfileSerializer, LoginSerializer
 from .models import User
+
+class UserViewSet(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    def get(self, request):
+        return Response(self.serializer_class(self.get_queryset(), many=True).data)
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -13,6 +19,7 @@ class RegisterView(generics.CreateAPIView):
 
 class LoginView(generics.GenericAPIView):
     permission_classes = (AllowAny,)
+    serializer_class = LoginSerializer
 
     def post(self, request):
         username = request.data.get('username')

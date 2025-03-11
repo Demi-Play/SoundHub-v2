@@ -31,7 +31,7 @@ class RatingTests(TestCase):
         self.client.force_authenticate(user=self.owner)
 
     def test_rating(self):
-        response = self.client.post(f'/api/ratings/projects/{self.project.id}/', 
+        response = self.client.post(f'/api/ratings/ratings/projects/{self.project.id}/', 
                                    {'score': 5, 'comment': 'Great work!'})
         self.assertEqual(response.status_code, 201)
         self.assertEqual(self.owner.bonuspoints.points, 10)

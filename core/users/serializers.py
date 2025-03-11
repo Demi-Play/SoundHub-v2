@@ -42,3 +42,11 @@ class RegisterSerializer(serializers.ModelSerializer):
             else:
                 raise serializers.ValidationError("Verification documents required for studio roles")
         return user
+    
+class LoginSerializer(serializers.ModelSerializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
+
+    class Meta:
+        model = User
+        fields = ['username', 'password']

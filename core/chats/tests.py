@@ -28,22 +28,10 @@ class ChatTests(TestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_create_chat(self):
-        # Создаем студию через API
-        self.client.force_authenticate(user=self.owner)
-        studio_response = self.client.post('/api/studios/', {
-            'name': 'Test Studio',
-            'description': 'Test desc',
-            'address': 'Test address',
-            'equipment_list': ['Mic'],
-            'pricing': {'recording': 100},
-            'commission_percent': 10
-        }, format='json')
-        
-        # Создаем чат
-        self.client.force_authenticate(user=self.user)
-        response = self.client.post('/api/chats/create/', 
-                                {'studio_id': studio_response.data['name']},
-                                format='json')  # Добавлен format
+        # Используем существующую студию
+        response = self.client.post('/api/chats/chats/create/', 
+                                {'studio_id': self.studio.id},
+                                format='json')
         self.assertEqual(response.status_code, 201)
 
     def test_send_message(self):

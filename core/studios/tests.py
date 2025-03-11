@@ -24,7 +24,7 @@ class StudioTests(TestCase):
             'pricing': {'recording': 100},     # Словарь вместо строки
             'commission_percent': 10
         }
-        response = self.client.post('/api/studios/', data, format='json')
+        response = self.client.post('/api/studios/studios/', data, format='json')
         self.assertEqual(response.status_code, 201)
 
     # В studios/tests.py исправляем данные PATCH-запроса:
@@ -39,7 +39,7 @@ class StudioTests(TestCase):
             pricing={'old': 50},
             commission_percent=5
         )
-        response = self.client.patch(f'/api/studios/{studio.id}/', 
+        response = self.client.patch(f'/api/studios/studios/{studio.id}/', 
                                     {
                                         'name': 'New Name',
                                         'equipment_list': ['New equipment'],
