@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-tqj5$30hqeo(4l7p&980kmsnj4!tpsu#@(%8^upf*hvjtvaaya
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'drf_yasg',
     'drf_spectacular',
+    'corsheaders',
 ]
 
 AUTH_USER_MODEL = "users.User"
@@ -72,11 +73,25 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+    # "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
 ]
+
+# CORS_ALLOW_ALL_ORIGINS = True
+
+# Разрешите конкретные домены
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # React/Vite dev server
+    "http://127.0.0.1:5173",  # React/Vite dev server
+]
+
+CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
+
+# Разрешаем отправлять cookie при межсайтовых запросах на разрешённые домены:
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = "core.urls"
 

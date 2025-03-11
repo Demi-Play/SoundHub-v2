@@ -22,6 +22,15 @@ schema_view = get_schema_view(
     permission_classes=(permissions.AllowAny,),
 )
 
+# core/urls.py
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.http import JsonResponse
+
+@ensure_csrf_cookie
+def get_csrf_token(request):
+    return JsonResponse({'csrfToken': 'su523cce349sseggggg523gghkh476ggggrsg532sr56747'})
+
+
 urlpatterns = [
     # Главные маршруты вашего проекта
     path('admin/', admin.site.urls),
@@ -35,6 +44,9 @@ urlpatterns = [
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    
+    path('get-csrf-token/', get_csrf_token),
+    
 ]
 
 # Для разработки: обслуживание медиа-файлов
