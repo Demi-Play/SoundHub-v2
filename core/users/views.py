@@ -4,7 +4,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .serializers import UserSerializer, RegisterSerializer, UserProfileSerializer, LoginSerializer
-from .models import User
+from .models import User, UserProfile
 
 class UserViewSet(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -25,16 +25,15 @@ class LoginView(generics.GenericAPIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
-        user = authenticate(username=username, password=password)
-        if user:
-            if user.is_verified:
+        serializer = LoginSerializer(data=request.data)
+        if serializer.is_valid():
+                user = serializer.validated_data['user']
                 refresh = RefreshToken.for_user(user)
                 return Response({
                     'refresh': str(refresh),
                     'access': str(refresh.access_token),
-                })
-            else:
-                return Response({'error': 'User not verified'}, status=status.HTTP_403_FORBIDDEN)
+                    "message": "Login successful"
+                    }, status=status.HTTP_200_OK)
         else:
             return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -56,3 +55,27 @@ class ProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user.userprofile
+    
+    def get(self, request):
+        try:
+            profile = request.user.userprofile
+            serializer = UserProfileSerializer(profile)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except UserProfile.DoesNotExist:
+            # Если профиль не существует, создаем его
+            profile = UserProfile.objects.create(user=request.user)
+            serializer = UserProfileSerializer(profile)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def put(self, request):
+        try:
+            profile = request.user.userprofile
+        except UserProfile.DoesNotExist:
+            # Если профиль не существует, создаем его
+            profile = UserProfile.objects.create(user=request.user)
+
+        serializer = UserProfileSerializer(profile, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

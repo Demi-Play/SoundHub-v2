@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
 from users.models import UserProfile
 from studios.models import StudioVerification
 
@@ -15,7 +15,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ['username', 'avatar', 'bio', 'social_links', 'instruments', 'genres', 'studio']
+        fields = ['username', 'bio', 'social_links', 'instruments', 'genres', 'studio']
 
 class StudioVerificationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -50,3 +50,11 @@ class LoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'password']
+        
+    def validate(self, data):
+        user = authenticate(username=data['username'], password=data['password'])
+        if user is None:
+                raise serializers.ValidationError("Invalid credentials")
+
+        data['user'] = user
+        return data

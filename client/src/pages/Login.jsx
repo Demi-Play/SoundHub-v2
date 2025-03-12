@@ -16,17 +16,19 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const csrfToken = await getCsrfToken();
-            if (!csrfToken) {
-                throw new Error('Failed to fetch CSRF token');
-            }
-            console.log(csrfToken);
             const response = await login(username, password);
-            localStorage.setItem('accessToken', response.data.access);
-            localStorage.setItem('refreshToken', response.data.refresh);
-            alert(`Logged in as ${username}`);
-            navigate('/profile');
+            console.log("Login response:", response); // Логирование ответа
+
+            // Проверяем, что токены присутствуют в ответе
+            if (response.access && response.refresh) {
+                localStorage.setItem('accessToken', response.access);
+                localStorage.setItem('refreshToken', response.refresh);
+                navigate('/profile');
+            } else {
+                setError('Invalid credentials');
+            }
         } catch (err) {
+            console.error("Login failed:", err);
             setError('Invalid credentials');
         }
     };
