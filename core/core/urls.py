@@ -30,9 +30,14 @@ from django.http import JsonResponse
 def get_csrf_token(request):
     return JsonResponse({'csrfToken': 'su523cce349sseggggg523gghkh476ggggrsg532sr56747'})
 
+from django.shortcuts import render
+
+def index(request):
+    return render(request, 'home.html')
 
 urlpatterns = [
     # Главные маршруты вашего проекта
+    path('', index, name='index'),
     path('admin/', admin.site.urls),
     path('api/users/', include('users.urls')),
     path('api/studios/', include('studios.urls')),

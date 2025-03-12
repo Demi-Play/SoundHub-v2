@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+    <h2>Profile</h2>
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Bio:</strong> {{ user.userprofile.bio }}</p>
+    <p><strong>Genres:</strong> {{ user.userprofile.genres|join:", " }}</p>
+    <p><strong>Instruments:</strong> {{ user.userprofile.instruments|join:", " }}</p>
+    <p><strong>Social Links:</strong> {{ user.userprofile.social_links }}</p>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">Edit Profile</button>
+
+    <!-- Модальное окно для редактирования профиля -->
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editProfileForm" method="post" action="/api/users/profile">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Bio</label>
+                            <textarea name="bio" class="form-control">{{ user.userprofile.bio }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Genres (comma-separated)</label>
+                            <input type="text" name="genres" class="form-control" value="{{ user.userprofile.genres|join:', ' }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Instruments (comma-separated)</label>
+                            <input type="text" name="instruments" class="form-control" value="{{ user.userprofile.instruments|join:', ' }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Social Links (JSON format)</label>
+                            <input type="text" name="social_links" class="form-control" value="{{ user.userprofile.social_links }}">
+                        </div>
+                        <button type="submit" class="btn btn-success">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

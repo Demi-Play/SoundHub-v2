@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Studio Details{% endblock %}
+
+{% block content %}
+    <h2>{{ studio.name }}</h2>
+    <p><strong>Description:</strong> {{ studio.description }}</p>
+    <p><strong>Location:</strong> {{ studio.location }}</p>
+    <img src="{{ studio.logo.url }}" alt="{{ studio.name }} logo" width="100">
+
+    <h3>Edit Studio</h3>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Save Changes</button>
+    </form>
+{% endblock %}

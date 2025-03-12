@@ -2,80 +2,81 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 from .serializers import UserSerializer, RegisterSerializer, UserProfileSerializer, LoginSerializer
 from .models import User, UserProfile
-
-class UserViewSet(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    def get(self, request):
-        return Response(self.serializer_class(self.get_queryset(), many=True).data)
-
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    permission_classes = (AllowAny,)
-    serializer_class = RegisterSerializer
-
-
-class LoginView(generics.GenericAPIView):
-    permission_classes = (AllowAny,)
-    serializer_class = LoginSerializer
-
-    def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
-        serializer = LoginSerializer(data=request.data)
-        if serializer.is_valid():
-                user = serializer.validated_data['user']
-                refresh = RefreshToken.for_user(user)
-                return Response({
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token),
-                    "message": "Login successful"
-                    }, status=status.HTTP_200_OK)
-        else:
-            return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-
-class LogoutView(generics.GenericAPIView):
-    permission_classes = (IsAuthenticated,)
-
-    def post(self, request):
-        try:
-            refresh_token = request.data["refresh"]
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-            return Response(status=status.HTTP_205_RESET_CONTENT)
-        except Exception as e:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-class ProfileView(generics.RetrieveUpdateAPIView):
-    serializer_class = UserProfileSerializer
-    permission_classes = (IsAuthenticated,)
-
-    def get_object(self):
-        return self.request.user.userprofile
+from django.shortcuts import render, redirect
+# class UserViewSet(generics.CreateAPIView):
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
+#     def get(self, request):
+#         return Response(self.serializer_class(self.get_queryset(), many=True).data)
     
-    def get(self, request):
+@login_required
+def get_users(request):
+    users = User.objects.all()
+    return render(request, 'users.html', {'users': users})
+
+def register(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        email = request.POST.get('email')
+        if User.objects.filter(username=username).exists():
+            return render(request, 'register.html', {'error': 'Username already exists'})
+        user = User.objects.create_user(username=username, password=password, email=email)
+        user.save()
+        return redirect('login')
+    return render(request, 'register.html')
+
+
+def user_login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('index')
+        else:
+            return render(request, 'login.html', {'error': 'Invalid credentials'})
+    return render(request, 'login.html')
+
+@login_required
+def logout_view(request):
+    from django.contrib.auth import logout
+    logout(request)
+    return redirect('index')
+
+@login_required
+def profile(request):
+    user = User.objects.get(username=request.user.username)
+    if request.method == 'POST':
         try:
             profile = request.user.userprofile
-            serializer = UserProfileSerializer(profile)
-            return Response(serializer.data, status=status.HTTP_200_OK)
         except UserProfile.DoesNotExist:
-            # Если профиль не существует, создаем его
-            profile = UserProfile.objects.create(user=request.user)
-            serializer = UserProfileSerializer(profile)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def put(self, request):
-        try:
-            profile = request.user.userprofile
-        except UserProfile.DoesNotExist:
-            # Если профиль не существует, создаем его
             profile = UserProfile.objects.create(user=request.user)
 
-        serializer = UserProfileSerializer(profile, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        profile.bio = request.POST.get('bio', '')
+        profile.genres = request.POST.get('genres', '').split(', ')
+        profile.instruments = request.POST.get('instruments', '').split(', ')
+        profile.social_links = eval(request.POST.get('social_links', '{}'))  # Осторожно с eval
+        profile.save()
+        return redirect('profile')
+    return render(request, 'profile.html', {'user': user})
+
+# def update_profile(request):
+#     if request.method == 'POST':
+#         try:
+#             profile = request.user.userprofile
+#         except UserProfile.DoesNotExist:
+#             profile = UserProfile.objects.create(user=request.user)
+
+#         profile.bio = request.POST.get('bio', '')
+#         profile.genres = request.POST.get('genres', '').split(', ')
+#         profile.instruments = request.POST.get('instruments', '').split(', ')
+#         profile.social_links = eval(request.POST.get('social_links', '{}'))  # Осторожно с eval
+#         profile.save()
+#         return redirect('profile')
+#     return redirect('profile')
