@@ -1,16 +1,22 @@
 from django.urls import path
-from .views import ChatView, MessageView, ProjectCompleteView
+from . import views
+
+app_name = 'chats'
 
 urlpatterns = [
     # Создание чата между пользователем и студией
-    path('chats/create/', ChatView.as_view(), name='chat-create'),
+    path('chats/create/', views.ChatView.as_view(), name='chat-create'),
     
     # Отправка сообщения в чат
-    path('messages/send/', MessageView.as_view(), name='message-send'),
+    path('messages/send/', views.MessageView.as_view(), name='message-send'),
     
     # Завершение проекта
-    path('projects/<int:project_id>/complete/', ProjectCompleteView.as_view(), name='project-complete'),
+    path('projects/<int:project_id>/complete/', views.ProjectCompleteView.as_view(), name='project-complete'),
     
     # Получение всех сообщений чата
-    path('chats/<int:chat_id>/messages/', MessageView.as_view(), name='chat-messages'),
+    path('chats/<int:chat_id>/messages/', views.MessageView.as_view(), name='chat-messages'),
+    
+    path('project/<int:project_id>/', views.project_chat, name='project_chat'),
+    path('mark-as-read/', views.mark_as_read, name='mark_as_read'),
+    path('download/<int:file_id>/', views.download_file, name='download_file'),
 ]

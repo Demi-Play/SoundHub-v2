@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Финансы студии {{ studio.name }}</h2>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="list-group">
+                        <a href="{% url 'studios:studio_statistics' studio.id %}" class="list-group-item list-group-item-action">
+                            Общая статистика
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action active">
+                            Финансы
+                        </a>
+                        <a href="{% url 'studios:studio_reviews' studio.id %}" class="list-group-item list-group-item-action">
+                            Отзывы
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Доход за месяц</h5>
+                                    <h3 class="text-success">₽0</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Расходы за месяц</h5>
+                                    <h3 class="text-danger">₽0</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Чистая прибыль</h5>
+                                    <h3>₽0</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">История транзакций</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Дата</th>
+                                            <th>Описание</th>
+                                            <th>Тип</th>
+                                            <th>Сумма</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted">
+                                                Нет транзакций
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">Финансовая аналитика</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">Функционал аналитики находится в разработке</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

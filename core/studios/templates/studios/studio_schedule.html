@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Расписание студии {{ studio.name }}</h2>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="list-group">
+                        <a href="#" class="list-group-item list-group-item-action active">
+                            Расписание
+                        </a>
+                        <a href="{% url 'studios:studio_workers' studio.id %}" class="list-group-item list-group-item-action">
+                            Сотрудники
+                        </a>
+                        <a href="{% url 'studios:studio_projects' studio.id %}" class="list-group-item list-group-item-action">
+                            Проекты
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="calendar-container">
+                        <!-- Здесь будет календарь -->
+                        <p class="text-muted">Функционал календаря находится в разработке</p>
+                    </div>
+                    <div class="mt-4">
+                        <h4>Ближайшие записи</h4>
+                        <div class="list-group">
+                            <!-- Здесь будут ближайшие записи -->
+                            <p class="text-muted">Нет запланированных записей</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

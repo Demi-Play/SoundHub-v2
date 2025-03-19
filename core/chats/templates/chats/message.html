@@ -1,0 +1,60 @@
+{% load static %}
+
+<div class="message {% if message.sender == user %}own{% endif %}" {% if not message.is_read and message.sender != user %}data-message-id="{{ message.id }}"{% endif %}>
+    <div class="message-content">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+                <strong>{{ message.sender.username }}</strong>
+                <small class="text-muted ms-2">{{ message.created_at|date:"d.m.Y H:i" }}</small>
+            </div>
+            {% if not message.is_read and message.sender == user %}
+                <span class="badge bg-info">Не прочитано</span>
+            {% endif %}
+        </div>
+        
+        {% if message.text %}
+            <p class="mb-2">{{ message.text }}</p>
+        {% endif %}
+        
+        {% if message.files.all %}
+            <div class="message-files">
+                {% for file in message.files.all %}
+                    {% if file.file_type == 'image' %}
+                        <div class="position-relative">
+                            <img src="{{ file.file.url }}" class="file-preview" onclick="window.open('{{ file.file.url }}', '_blank')">
+                            <div class="position-absolute bottom-0 start-0 end-0 bg-dark bg-opacity-50 text-white p-1 small">
+                                {{ file.filename }}
+                            </div>
+                        </div>
+                    {% elif file.file_type == 'video' %}
+                        <div class="position-relative">
+                            <video class="file-preview" controls>
+                                <source src="{{ file.file.url }}" type="video/mp4">
+                                Ваш браузер не поддерживает видео.
+                            </video>
+                            <div class="position-absolute bottom-0 start-0 end-0 bg-dark bg-opacity-50 text-white p-1 small">
+                                {{ file.filename }}
+                            </div>
+                        </div>
+                    {% elif file.file_type == 'audio' %}
+                        <div class="audio-preview">
+                            <audio controls class="w-100">
+                                <source src="{{ file.file.url }}" type="audio/mpeg">
+                                Ваш браузер не поддерживает аудио.
+                            </audio>
+                            <div class="mt-2 small">{{ file.filename }}</div>
+                        </div>
+                    {% else %}
+                        <div class="document-preview">
+                            <i class="fas fa-file fa-2x mb-2"></i>
+                            <div class="small">{{ file.filename }}</div>
+                            <a href="{{ file.file.url }}" class="btn btn-sm btn-primary mt-2" download>
+                                <i class="fas fa-download me-1"></i> Скачать
+                            </a>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div> 

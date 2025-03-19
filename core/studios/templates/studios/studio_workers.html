@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Сотрудники студии {{ studio.name }}</h2>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="list-group">
+                        <a href="{% url 'studios:studio_schedule' studio.id %}" class="list-group-item list-group-item-action">
+                            Расписание
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action active">
+                            Сотрудники
+                        </a>
+                        <a href="{% url 'studios:studio_projects' studio.id %}" class="list-group-item list-group-item-action">
+                            Проекты
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="mb-4">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addWorkerModal">
+                            <i class="bi bi-plus-circle"></i> Добавить сотрудника
+                        </button>
+                    </div>
+                    <div class="workers-list">
+                        <!-- Здесь будет список сотрудников -->
+                        <p class="text-muted">Нет добавленных сотрудников</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно добавления сотрудника -->
+<div class="modal fade" id="addWorkerModal" tabindex="-1" aria-labelledby="addWorkerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addWorkerModalLabel">Добавить сотрудника</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addWorkerForm">
+                    <div class="mb-3">
+                        <label for="workerEmail" class="form-label">Email сотрудника</label>
+                        <input type="email" class="form-control" id="workerEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="workerRole" class="form-label">Роль</label>
+                        <select class="form-select" id="workerRole" required>
+                            <option value="">Выберите роль</option>
+                            <option value="sound_engineer">Звукорежиссер</option>
+                            <option value="producer">Продюсер</option>
+                            <option value="manager">Менеджер</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="submit" form="addWorkerForm" class="btn btn-primary">Добавить</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

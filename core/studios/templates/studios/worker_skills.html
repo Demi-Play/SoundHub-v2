@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Мои навыки</h2>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="list-group mb-4">
+                <a href="{% url 'studios:worker_schedule' %}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-calendar3"></i> Расписание
+                </a>
+                <a href="{% url 'studios:worker_tasks' %}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-list-task"></i> Задачи
+                </a>
+                <a href="#" class="list-group-item list-group-item-action active">
+                    <i class="bi bi-gear"></i> Навыки
+                </a>
+                <a href="{% url 'studios:worker_portfolio' %}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-collection"></i> Портфолио
+                </a>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Добавить навык</h5>
+                    <form>
+                        <div class="mb-3">
+                            <label for="skillName" class="form-label">Название</label>
+                            <input type="text" class="form-control" id="skillName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="skillLevel" class="form-label">Уровень владения</label>
+                            <select class="form-select" id="skillLevel" required>
+                                <option value="">Выберите уровень</option>
+                                <option value="beginner">Начинающий</option>
+                                <option value="intermediate">Средний</option>
+                                <option value="advanced">Продвинутый</option>
+                                <option value="expert">Эксперт</option>
+                            </select>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Добавить</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Технические навыки</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Звукорежиссура</h6>
+                            <div class="progress mb-3" style="height: 20px;">
+                                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                            </div>
+                            
+                            <h6>Сведение</h6>
+                            <div class="progress mb-3" style="height: 20px;">
+                                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                            </div>
+                            
+                            <h6>Мастеринг</h6>
+                            <div class="progress mb-3" style="height: 20px;">
+                                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6>Pro Tools</h6>
+                            <div class="progress mb-3" style="height: 20px;">
+                                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                            </div>
+                            
+                            <h6>Logic Pro</h6>
+                            <div class="progress mb-3" style="height: 20px;">
+                                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                            </div>
+                            
+                            <h6>Ableton Live</h6>
+                            <div class="progress mb-3" style="height: 20px;">
+                                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Сертификаты и достижения</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted text-center">Нет добавленных сертификатов</p>
+                    <div class="text-center">
+                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#addCertificateModal">
+                            <i class="bi bi-plus-circle"></i> Добавить сертификат
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно добавления сертификата -->
+<div class="modal fade" id="addCertificateModal" tabindex="-1" aria-labelledby="addCertificateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addCertificateModalLabel">Добавить сертификат</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="certificateForm">
+                    <div class="mb-3">
+                        <label for="certificateName" class="form-label">Название сертификата</label>
+                        <input type="text" class="form-control" id="certificateName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="issuingOrganization" class="form-label">Организация</label>
+                        <input type="text" class="form-control" id="issuingOrganization" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="issueDate" class="form-label">Дата получения</label>
+                        <input type="date" class="form-control" id="issueDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="certificateFile" class="form-label">Файл сертификата</label>
+                        <input type="file" class="form-control" id="certificateFile" accept=".pdf,.jpg,.png">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="submit" form="certificateForm" class="btn btn-primary">Добавить</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

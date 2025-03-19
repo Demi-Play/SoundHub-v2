@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Отзывы о студии {{ studio.name }}</h2>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="list-group">
+                        <a href="{% url 'studios:studio_statistics' studio.id %}" class="list-group-item list-group-item-action">
+                            Общая статистика
+                        </a>
+                        <a href="{% url 'studios:studio_finances' studio.id %}" class="list-group-item list-group-item-action">
+                            Финансы
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action active">
+                            Отзывы
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Средняя оценка</h5>
+                                    <h2>0.0</h2>
+                                    <div class="text-warning">
+                                        <i class="bi bi-star"></i>
+                                        <i class="bi bi-star"></i>
+                                        <i class="bi bi-star"></i>
+                                        <i class="bi bi-star"></i>
+                                        <i class="bi bi-star"></i>
+                                    </div>
+                                    <p class="text-muted mt-2">0 отзывов</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Распределение оценок</h5>
+                                    <div class="rating-bars">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="me-2">5 <i class="bi bi-star-fill text-warning"></i></span>
+                                            <div class="progress flex-grow-1" style="height: 20px;">
+                                                <div class="progress-bar bg-success" style="width: 0%"></div>
+                                            </div>
+                                            <span class="ms-2">0</span>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="me-2">4 <i class="bi bi-star-fill text-warning"></i></span>
+                                            <div class="progress flex-grow-1" style="height: 20px;">
+                                                <div class="progress-bar bg-success" style="width: 0%"></div>
+                                            </div>
+                                            <span class="ms-2">0</span>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="me-2">3 <i class="bi bi-star-fill text-warning"></i></span>
+                                            <div class="progress flex-grow-1" style="height: 20px;">
+                                                <div class="progress-bar bg-warning" style="width: 0%"></div>
+                                            </div>
+                                            <span class="ms-2">0</span>
+                                        </div>
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="me-2">2 <i class="bi bi-star-fill text-warning"></i></span>
+                                            <div class="progress flex-grow-1" style="height: 20px;">
+                                                <div class="progress-bar bg-danger" style="width: 0%"></div>
+                                            </div>
+                                            <span class="ms-2">0</span>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <span class="me-2">1 <i class="bi bi-star-fill text-warning"></i></span>
+                                            <div class="progress flex-grow-1" style="height: 20px;">
+                                                <div class="progress-bar bg-danger" style="width: 0%"></div>
+                                            </div>
+                                            <span class="ms-2">0</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Последние отзывы</h5>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Сортировка
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                                    <li><a class="dropdown-item" href="#">Новые сначала</a></li>
+                                    <li><a class="dropdown-item" href="#">Старые сначала</a></li>
+                                    <li><a class="dropdown-item" href="#">По оценке (выс.)</a></li>
+                                    <li><a class="dropdown-item" href="#">По оценке (низ.)</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted text-center">Нет отзывов</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

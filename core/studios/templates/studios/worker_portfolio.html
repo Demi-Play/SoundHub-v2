@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Мое портфолио</h2>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="list-group mb-4">
+                <a href="{% url 'studios:worker_schedule' %}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-calendar3"></i> Расписание
+                </a>
+                <a href="{% url 'studios:worker_tasks' %}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-list-task"></i> Задачи
+                </a>
+                <a href="{% url 'studios:worker_skills' %}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-gear"></i> Навыки
+                </a>
+                <a href="#" class="list-group-item list-group-item-action active">
+                    <i class="bi bi-collection"></i> Портфолио
+                </a>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Добавить работу</h5>
+                    <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#addWorkModal">
+                        <i class="bi bi-plus-circle"></i> Новая работа
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Мои работы</h5>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline-secondary active">Все</button>
+                            <button type="button" class="btn btn-outline-secondary">Звукорежиссура</button>
+                            <button type="button" class="btn btn-outline-secondary">Сведение</button>
+                            <button type="button" class="btn btn-outline-secondary">Мастеринг</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted text-center">Нет добавленных работ</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Статистика</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <h3>0</h3>
+                                <p class="text-muted">Всего работ</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <h3>0</h3>
+                                <p class="text-muted">Просмотров</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <h3>0</h3>
+                                <p class="text-muted">Лайков</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно добавления работы -->
+<div class="modal fade" id="addWorkModal" tabindex="-1" aria-labelledby="addWorkModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addWorkModalLabel">Добавить работу</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="workForm">
+                    <div class="mb-3">
+                        <label for="workTitle" class="form-label">Название</label>
+                        <input type="text" class="form-control" id="workTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="workType" class="form-label">Тип работы</label>
+                        <select class="form-select" id="workType" required>
+                            <option value="">Выберите тип</option>
+                            <option value="sound_engineering">Звукорежиссура</option>
+                            <option value="mixing">Сведение</option>
+                            <option value="mastering">Мастеринг</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="workDescription" class="form-label">Описание</label>
+                        <textarea class="form-control" id="workDescription" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="workAudio" class="form-label">Аудио файл</label>
+                        <input type="file" class="form-control" id="workAudio" accept="audio/*" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="workImage" class="form-label">Обложка (опционально)</label>
+                        <input type="file" class="form-control" id="workImage" accept="image/*">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <button type="submit" form="workForm" class="btn btn-primary">Добавить</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

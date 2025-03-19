@@ -266,3 +266,80 @@ def create_studio_request_view(request, studio_id):
         return redirect('studios_list')
 
     return redirect('studios_list')
+
+@login_required
+def studio_schedule(request, studio_id):
+    if request.user.user_type != 'studio_owner' or not request.user.is_verified:
+        return render(request, 'errors/403.html', status=403)
+    
+    studio = get_object_or_404(Studio, id=studio_id, owner=request.user)
+    return render(request, 'studios/studio_schedule.html', {'studio': studio})
+
+@login_required
+def studio_workers(request, studio_id):
+    if request.user.user_type != 'studio_owner' or not request.user.is_verified:
+        return render(request, 'errors/403.html', status=403)
+    
+    
+    
+    studio = get_object_or_404(Studio, id=studio_id, owner=request.user)
+    return render(request, 'studios/studio_workers.html', {'studio': studio})
+
+@login_required
+def studio_finances(request, studio_id):
+    if request.user.user_type != 'studio_owner' or not request.user.is_verified:
+        return render(request, 'errors/403.html', status=403)
+    
+    studio = get_object_or_404(Studio, id=studio_id, owner=request.user)
+    return render(request, 'studios/studio_finances.html', {'studio': studio})
+
+@login_required
+def studio_reviews(request, studio_id):
+    if request.user.user_type != 'studio_owner' or not request.user.is_verified:
+        return render(request, 'errors/403.html', status=403)
+    
+    studio = get_object_or_404(Studio, id=studio_id, owner=request.user)
+    return render(request, 'studios/studio_reviews.html', {'studio': studio})
+
+@login_required
+def worker_schedule(request):
+    if request.user.user_type != 'studio_worker':
+        return render(request, 'errors/403.html', status=403)
+    
+    return render(request, 'studios/worker_schedule.html')
+
+@login_required
+def worker_tasks(request):
+    if request.user.user_type != 'studio_worker':
+        return render(request, 'errors/403.html', status=403)
+    
+    return render(request, 'studios/worker_tasks.html')
+
+@login_required
+def worker_skills(request):
+    if request.user.user_type != 'studio_worker':
+        return render(request, 'errors/403.html', status=403)
+    
+    return render(request, 'studios/worker_skills.html')
+
+@login_required
+def worker_portfolio(request):
+    if request.user.user_type != 'studio_worker':
+        return render(request, 'errors/403.html', status=403)
+    
+    return render(request, 'studios/worker_portfolio.html')
+
+@login_required
+def task_detail(request, task_id):
+    if request.user.user_type != 'studio_worker':
+        return render(request, 'errors/403.html', status=403)
+    
+    task = get_object_or_404(Task, id=task_id)
+    return render(request, 'studios/task_detail.html', {'task': task})
+
+@login_required
+def request_time_off(request):
+    if request.user.user_type != 'studio_worker':
+        return render(request, 'errors/403.html', status=403)
+    
+    return render(request, 'studios/request_time_off.html')

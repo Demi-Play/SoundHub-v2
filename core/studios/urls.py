@@ -10,11 +10,23 @@ from .views import (
     studio_complete_project_view,
     studios_list_view,
     create_studio_request_view,
-    StudioOwnerViewSet
+    StudioOwnerViewSet,
+    studio_schedule,
+    studio_workers,
+    studio_finances,
+    studio_reviews,
+    worker_schedule,
+    worker_tasks,
+    worker_skills,
+    worker_portfolio,
+    task_detail,
+    request_time_off
 )
 
 router = DefaultRouter()
-router.register(r'my-studios', StudioOwnerViewSet, basename='studio-owner')
+router.register(r'my-studios', StudioOwnerViewSet, basename='studio')
+
+app_name = 'studios'
 
 urlpatterns = [
     # Публичные URL
@@ -30,4 +42,14 @@ urlpatterns = [
     path('<int:studio_id>/projects/complete/', studio_complete_project_view, name='studio_complete_project'),
     path('verification/', studio_verification_view, name='studio_verification'),
     path('api/', include(router.urls)),
+    path('<int:studio_id>/schedule/', studio_schedule, name='studio_schedule'),
+    path('<int:studio_id>/workers/', studio_workers, name='studio_workers'),
+    path('<int:studio_id>/finances/', studio_finances, name='studio_finances'),
+    path('<int:studio_id>/reviews/', studio_reviews, name='studio_reviews'),
+    path('worker/schedule/', worker_schedule, name='worker_schedule'),
+    path('worker/tasks/', worker_tasks, name='worker_tasks'),
+    path('worker/skills/', worker_skills, name='worker_skills'),
+    path('worker/portfolio/', worker_portfolio, name='worker_portfolio'),
+    path('task/<int:task_id>/', task_detail, name='task_detail'),
+    path('request-time-off/', request_time_off, name='request_time_off'),
 ]

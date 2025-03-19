@@ -2,13 +2,20 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render, redirect
 from django.db import transaction
 from studios.models import Studio
 from .models import Chat, Project, Message, File
 from .serializers import ChatSerializer, ProjectSerializer, MessageSerializer, FileSerializer
 from users.models import User
 from payments.models import Payment, Transaction
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.template.loader import render_to_string
+from django.core.exceptions import PermissionDenied
+from django.views.decorators.http import require_POST
+from django.conf import settings
+import json
 
 # pylint: disable=no-member
 
@@ -87,3 +94,78 @@ class ProjectCompleteView(APIView):
                 project.payment.save()
                 
         return Response({"status": "Project completed successfully"})
+
+@login_required
+def project_chat(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    
+    # Проверяем права доступа
+    if request.user != project.client and request.user not in project.studio.workers.all():
+        raise PermissionDenied
+    
+    chat, created = Chat.objects.get_or_create(project=project)
+    messages = chat.messages.select_related('sender').prefetch_related('files').order_by('created_at')
+    
+    if request.method == 'POST':
+        text = request.POST.get('message')
+        files = request.FILES.getlist('files')
+        
+        if text or files:
+            message = Message.objects.create(
+                chat=chat,
+                sender=request.user,
+                text=text
+            )
+            
+            for file in files:
+                File.objects.create(
+                    message=message,
+                    file=file,
+                    filename=file.name,
+                    size=file.size
+                )
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                message_html = render_to_string('chats/message.html', {
+                    'message': message,
+                    'user': request.user
+                })
+                return JsonResponse({'message_html': message_html})
+            
+            return redirect('project_chat', project_id=project_id)
+    
+    return render(request, 'chats/chat.html', {
+        'project': project,
+        'chat': chat,
+        'messages': messages
+    })
+
+@login_required
+@require_POST
+def mark_as_read(request):
+    data = json.loads(request.body)
+    message_id = data.get('message_id')
+    message = get_object_or_404(Message, id=message_id)
+    
+    if request.user != message.chat.project.client and request.user not in message.chat.project.studio.workers.all():
+        raise PermissionDenied
+    
+    message.is_read = True
+    message.save()
+    
+    return JsonResponse({'status': 'ok'})
+
+@login_required
+def download_file(request, file_id):
+    file = get_object_or_404(File, id=file_id)
+    message = file.message
+    
+    if request.user != message.chat.project.client and request.user not in message.chat.project.studio.workers.all():
+        raise PermissionDenied
+    
+    response = JsonResponse({
+        'file_url': file.file.url,
+        'filename': file.filename
+    })
+    
+    return response

@@ -10,16 +10,49 @@
                 <div class="card-body">
                     <h5 class="card-title">Моя студия</h5>
                     <p class="card-text">Управление информацией о студии</p>
-                    <a href="#" class="btn btn-primary">Настройки студии</a>
+                    {% if user.owned_studios.exists %}
+                        {% with studio=user.owned_studios.first %}
+                        <div class="list-group mb-3">
+                            <a href="{% url 'studios:studio_detail' studio.id %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-info-circle me-2"></i>Информация о студии
+                            </a>
+                            <a href="{% url 'studios:studio_schedule' studio.id %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-calendar me-2"></i>Расписание
+                            </a>
+                            <a href="{% url 'studios:studio_workers' studio.id %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-users me-2"></i>Сотрудники
+                            </a>
+                        </div>
+                        {% endwith %}
+                    {% else %}
+                        <p class="text-muted">У вас пока нет студии</p>
+                        <a href="{% url 'studios:create_studio' %}" class="btn btn-primary">Создать студию</a>
+                    {% endif %}
                 </div>
             </div>
         </div>
         <div class="col-md-4">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">Заказы</h5>
+                    <h5 class="card-title">Проекты и заказы</h5>
                     <p class="card-text">Управление заказами на запись</p>
-                    <a href="#" class="btn btn-primary">Просмотр заказов</a>
+                    {% if user.owned_studios.exists %}
+                        {% with studio=user.owned_studios.first %}
+                        <div class="list-group mb-3">
+                            {% for project in studio.studio_projects.all|slice:":3" %}
+                                <a href="{% url 'chats:project_chat' project.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                    {{ project.title }}
+                                    <span class="badge bg-{{ project.status }} rounded-pill">{{ project.get_status_display }}</span>
+                                </a>
+                            {% endfor %}
+                        </div>
+                        {% if studio.studio_projects.count > 3 %}
+                            <a href="{% url 'studios:studio_projects' studio.id %}" class="btn btn-outline-primary btn-sm">Показать все</a>
+                        {% endif %}
+                        {% endwith %}
+                    {% else %}
+                        <p class="text-muted">Создайте студию, чтобы начать принимать заказы</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -28,7 +61,23 @@
                 <div class="card-body">
                     <h5 class="card-title">Статистика</h5>
                     <p class="card-text">Аналитика и отчеты</p>
-                    <a href="#" class="btn btn-primary">Просмотр статистики</a>
+                    {% if user.owned_studios.exists %}
+                        {% with studio=user.owned_studios.first %}
+                        <div class="list-group mb-3">
+                            <a href="{% url 'studios:studio_statistics' studio.id %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-chart-bar me-2"></i>Общая статистика
+                            </a>
+                            <a href="{% url 'studios:studio_finances' studio.id %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-money-bill me-2"></i>Финансы
+                            </a>
+                            <a href="{% url 'studios:studio_reviews' studio.id %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-star me-2"></i>Отзывы
+                            </a>
+                        </div>
+                        {% endwith %}
+                    {% else %}
+                        <p class="text-muted">Статистика будет доступна после создания студии</p>
+                    {% endif %}
                 </div>
             </div>
         </div>

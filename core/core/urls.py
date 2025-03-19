@@ -40,9 +40,9 @@ urlpatterns = [
     path('', index, name='index'),
     path('admin/', admin.site.urls),
     path('api/users/', include('users.urls')),
-    path('api/studios/', include('studios.urls')),
-    path('api/payments/', include('payments.urls')),
-    path('api/chats/', include('chats.urls')),
+    path('api/studios/', include('studios.urls', namespace='studios')),
+    path('api/payments/', include(('payments.urls', 'payments'), namespace='payments')),
+    path('api/chats/', include('chats.urls', namespace='chats')),
     path('api/ratings/', include('ratings.urls')),
 
     # Маршруты для документации

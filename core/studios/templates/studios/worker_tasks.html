@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Мои задачи</h2>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="list-group mb-4">
+                <a href="{% url 'studios:worker_schedule' %}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-calendar3"></i> Расписание
+                </a>
+                <a href="#" class="list-group-item list-group-item-action active">
+                    <i class="bi bi-list-task"></i> Задачи
+                </a>
+                <a href="{% url 'studios:worker_skills' %}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-gear"></i> Навыки
+                </a>
+                <a href="{% url 'studios:worker_portfolio' %}" class="list-group-item list-group-item-action">
+                    <i class="bi bi-collection"></i> Портфолио
+                </a>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Фильтры</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Статус</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="activeTasksCheck" checked>
+                            <label class="form-check-label" for="activeTasksCheck">
+                                Активные
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="completedTasksCheck">
+                            <label class="form-check-label" for="completedTasksCheck">
+                                Завершенные
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Приоритет</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="highPriorityCheck" checked>
+                            <label class="form-check-label" for="highPriorityCheck">
+                                Высокий
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="mediumPriorityCheck" checked>
+                            <label class="form-check-label" for="mediumPriorityCheck">
+                                Средний
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="lowPriorityCheck" checked>
+                            <label class="form-check-label" for="lowPriorityCheck">
+                                Низкий
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Активные задачи</h5>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                Сортировка
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                                <li><a class="dropdown-item" href="#">По приоритету</a></li>
+                                <li><a class="dropdown-item" href="#">По сроку</a></li>
+                                <li><a class="dropdown-item" href="#">По дате создания</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted text-center">Нет активных задач</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Завершенные задачи</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted text-center">Нет завершенных задач</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -10,7 +10,21 @@
                 <div class="card-body">
                     <h5 class="card-title">Мои задачи</h5>
                     <p class="card-text">Просмотр и управление текущими задачами</p>
-                    <a href="#" class="btn btn-primary">Перейти к задачам</a>
+                    {% if user.assigned_tasks.exists %}
+                        <div class="list-group mb-3">
+                            {% for task in user.assigned_tasks.all|slice:":3" %}
+                                <a href="{% url 'studios:task_detail' task.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                    {{ task.title }}
+                                    <span class="badge bg-{{ task.status }} rounded-pill">{{ task.get_status_display }}</span>
+                                </a>
+                            {% endfor %}
+                        </div>
+                        {% if user.assigned_tasks.count > 3 %}
+                            <a href="{% url 'studios:worker_tasks' %}" class="btn btn-outline-primary btn-sm">Показать все</a>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-muted">У вас пока нет активных задач</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -19,7 +33,21 @@
                 <div class="card-body">
                     <h5 class="card-title">Расписание</h5>
                     <p class="card-text">Просмотр рабочего расписания</p>
-                    <a href="#" class="btn btn-primary">Просмотр расписания</a>
+                    {% if user.studio %}
+                        <div class="list-group mb-3">
+                            <a href="{% url 'studios:worker_schedule' %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-calendar me-2"></i>Мое расписание
+                            </a>
+                            <a href="{% url 'studios:studio_schedule' user.studio.id %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-calendar-alt me-2"></i>Расписание студии
+                            </a>
+                            <a href="{% url 'studios:request_time_off' %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-clock me-2"></i>Запросить выходной
+                            </a>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Вы не привязаны к студии</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -28,7 +56,17 @@
                 <div class="card-body">
                     <h5 class="card-title">Профиль</h5>
                     <p class="card-text">Настройки профиля работника</p>
-                    <a href="{% url 'profile' %}" class="btn btn-primary">Редактировать профиль</a>
+                    <div class="list-group mb-3">
+                        <a href="{% url 'profile' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-user me-2"></i>Личная информация
+                        </a>
+                        <a href="{% url 'studios:worker_skills' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-tools me-2"></i>Мои навыки
+                        </a>
+                        <a href="{% url 'studios:worker_portfolio' %}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-folder me-2"></i>Портфолио
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
