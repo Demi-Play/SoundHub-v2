@@ -16,3 +16,32 @@ class StudioVerification(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     documents = models.FileField(upload_to='verification/')
     status = models.CharField(max_length=20, choices=[('pending', 'На проверке'), ('approved', 'Одобрено'), ('rejected', 'Отклонено')])
+
+class StudioStatistics(models.Model):
+    studio = models.OneToOneField(Studio, on_delete=models.CASCADE, related_name='statistics')
+    total_projects = models.IntegerField(default=0)
+    completed_projects = models.IntegerField(default=0)
+    total_revenue = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    average_rating = models.DecimalField(max_digits=3, decimal_places=2, default=0)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    def update_statistics(self):
+        from chats.models import Project
+        from ratings.models import Rating
+        
+        projects = Project.objects.filter(chat__studio=self.studio)
+        self.total_projects = projects.count()
+        self.completed_projects = projects.filter(is_completed=True).count()
+        
+        # Calculate total revenue from completed projects
+        completed_projects = projects.filter(is_completed=True)
+        self.total_revenue = sum(project.payment.amount for project in completed_projects if hasattr(project, 'payment'))
+        
+        # Calculate average rating
+        ratings = Rating.objects.filter(project__chat__studio=self.studio)
+        if ratings.exists():
+            self.average_rating = ratings.aggregate(models.Avg('score'))['score__avg']
+        else:
+            self.average_rating = 0
+            
+        self.save()

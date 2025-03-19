@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h2 class="text-center mb-4">Выберите вашу роль</h2>
+                    <p class="text-center text-muted mb-4">Пожалуйста, выберите роль, которая лучше всего описывает вас в нашей системе</p>
+                    
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="row g-4">
+                            <div class="col-md-4">
+                                <div class="role-card">
+                                    <input type="radio" name="role" value="musician" id="musician" class="role-input" required>
+                                    <label for="musician" class="role-label">
+                                        <i class="fas fa-music mb-3"></i>
+                                        <h4>Музыкант</h4>
+                                        <p>Я хочу создавать и публиковать музыку</p>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="role-card">
+                                    <input type="radio" name="role" value="studio_owner" id="studio_owner" class="role-input" required>
+                                    <label for="studio_owner" class="role-label">
+                                        <i class="fas fa-building mb-3"></i>
+                                        <h4>Владелец студии</h4>
+                                        <p>Я владею студией звукозаписи</p>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="role-card">
+                                    <input type="radio" name="role" value="studio_worker" id="studio_worker" class="role-input" required>
+                                    <label for="studio_worker" class="role-label">
+                                        <i class="fas fa-user-tie mb-3"></i>
+                                        <h4>Работник студии</h4>
+                                        <p>Я работаю в студии звукозаписи</p>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">Продолжить</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .card {
+        border-radius: 15px;
+        border: none;
+    }
+    .role-card {
+        position: relative;
+        height: 100%;
+    }
+    .role-input {
+        display: none;
+    }
+    .role-label {
+        display: block;
+        padding: 2rem;
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    .role-input:checked + .role-label {
+        border-color: #0d6efd;
+        background-color: #f8f9fa;
+    }
+    .role-label i {
+        font-size: 2.5rem;
+        color: #0d6efd;
+    }
+    .role-label h4 {
+        margin: 1rem 0;
+        color: #333;
+    }
+    .role-label p {
+        color: #6c757d;
+        margin: 0;
+    }
+    .btn-primary {
+        border-radius: 8px;
+        padding: 12px 30px;
+        font-weight: 500;
+    }
+</style>
+{% endblock %} 

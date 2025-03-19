@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Проекты студии {{ studio.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Проекты студии "{{ studio.name }}"</h2>
+
+    <!-- Заявки на проекты -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h4>Заявки на проекты</h4>
+        </div>
+        <div class="card-body">
+            {% if project_requests %}
+                <div class="list-group">
+                    {% for chat in project_requests %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-1">Чат #{{ chat.id }}</h5>
+                                    <p class="mb-1">Участники: 
+                                        {% for participant in chat.participants.all %}
+                                            {{ participant.username }}{% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </p>
+                                </div>
+                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal{{ chat.id }}">
+                                    Создать проект
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Модальное окно создания проекта -->
+                        <div class="modal fade" id="createProjectModal{{ chat.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Создать проект</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form action="{% url 'studio_create_project' studio.id %}" method="post">
+                                        {% csrf_token %}
+                                        <div class="modal-body">
+                                            <input type="hidden" name="chat_id" value="{{ chat.id }}">
+                                            <div class="mb-3">
+                                                <label class="form-label">Тип проекта</label>
+                                                <select name="type" class="form-select" required>
+                                                    <option value="album">Альбом</option>
+                                                    <option value="single">Сингл</option>
+                                                    <option value="ep">EP</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Название проекта</label>
+                                                <input type="text" name="title" class="form-control" required>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                                            <button type="submit" class="btn btn-primary">Создать</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">Нет активных заявок на проекты</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Активные проекты -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h4>Активные проекты</h4>
+        </div>
+        <div class="card-body">
+            {% if active_projects %}
+                <div class="list-group">
+                    {% for project in active_projects %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-1">{{ project.title }}</h5>
+                                    <p class="mb-1">Тип: {{ project.get_type_display }}</p>
+                                    <p class="mb-1">Участники: 
+                                        {% for participant in project.chat.participants.all %}
+                                            {{ participant.username }}{% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </p>
+                                </div>
+                                <form action="{% url 'studio_complete_project' studio.id %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="project_id" value="{{ project.id }}">
+                                    <button type="submit" class="btn btn-success">Завершить проект</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">Нет активных проектов</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

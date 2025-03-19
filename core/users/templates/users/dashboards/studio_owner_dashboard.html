@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Панель управления владельца студии</h2>
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Моя студия</h5>
+                    <p class="card-text">Управление информацией о студии</p>
+                    <a href="#" class="btn btn-primary">Настройки студии</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Заказы</h5>
+                    <p class="card-text">Управление заказами на запись</p>
+                    <a href="#" class="btn btn-primary">Просмотр заказов</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Статистика</h5>
+                    <p class="card-text">Аналитика и отчеты</p>
+                    <a href="#" class="btn btn-primary">Просмотр статистики</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

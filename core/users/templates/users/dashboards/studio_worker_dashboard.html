@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Панель управления работника студии</h2>
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Мои задачи</h5>
+                    <p class="card-text">Просмотр и управление текущими задачами</p>
+                    <a href="#" class="btn btn-primary">Перейти к задачам</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Расписание</h5>
+                    <p class="card-text">Просмотр рабочего расписания</p>
+                    <a href="#" class="btn btn-primary">Просмотр расписания</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Профиль</h5>
+                    <p class="card-text">Настройки профиля работника</p>
+                    <a href="{% url 'profile' %}" class="btn btn-primary">Редактировать профиль</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

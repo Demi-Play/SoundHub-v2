@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Статистика студии {{ studio.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Статистика студии "{{ studio.name }}"</h2>
+    
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Всего проектов</h5>
+                    <p class="card-text display-4">{{ statistics.total_projects }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Завершено проектов</h5>
+                    <p class="card-text display-4">{{ statistics.completed_projects }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Общая выручка</h5>
+                    <p class="card-text display-4">{{ statistics.total_revenue }} ₽</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Средний рейтинг</h5>
+                    <p class="card-text display-4">{{ statistics.average_rating|floatformat:1 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <p class="text-muted">Последнее обновление: {{ statistics.last_updated|date:"d.m.Y H:i" }}</p>
+    </div>
+</div>
+{% endblock %} 

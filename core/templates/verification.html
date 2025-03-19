@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Верификация{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Выберите вашу роль</h3>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Музыкант</h5>
+                                    <p class="card-text">Создавайте проекты и сотрудничайте со студиями</p>
+                                    <form method="post" action="{% url 'verify_role' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="role" value="musician">
+                                        <button type="submit" class="btn btn-primary">Выбрать</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Владелец студии</h5>
+                                    <p class="card-text">Создавайте и управляйте своей студией</p>
+                                    <form method="post" action="{% url 'verify_role' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="role" value="studio_owner">
+                                        <button type="submit" class="btn btn-primary">Выбрать</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Работник студии</h5>
+                                    <p class="card-text">Работайте в студии и участвуйте в проектах</p>
+                                    <form method="post" action="{% url 'verify_role' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="role" value="studio_worker">
+                                        <button type="submit" class="btn btn-primary">Выбрать</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

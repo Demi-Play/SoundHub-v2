@@ -1,17 +1,104 @@
 {% extends "base.html" %}
 
-{% block title %}Studio Details{% endblock %}
+{% block title %}{{ studio.name }}{% endblock %}
 
 {% block content %}
-    <h2>{{ studio.name }}</h2>
-    <p><strong>Description:</strong> {{ studio.description }}</p>
-    <p><strong>Location:</strong> {{ studio.location }}</p>
-    <img src="{{ studio.logo.url }}" alt="{{ studio.name }} logo" width="100">
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <!-- Навигация -->
+            <div class="list-group">
+                <a href="{% url 'studio_detail' studio.id %}" class="list-group-item list-group-item-action active">
+                    Информация
+                </a>
+                <a href="{% url 'studio_statistics' studio.id %}" class="list-group-item list-group-item-action">
+                    Статистика
+                </a>
+                <a href="{% url 'studio_projects' studio.id %}" class="list-group-item list-group-item-action">
+                    Проекты
+                </a>
+                <a href="{% url 'studio_verification' %}" class="list-group-item list-group-item-action">
+                    Верификация
+                </a>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h3>{{ studio.name }}</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            <div class="mb-3">
+                                <label class="form-label">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="alert alert-danger">
+                                        {{ field.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                    </form>
 
-    <h3>Edit Studio</h3>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-success">Save Changes</button>
-    </form>
+                    <hr>
+
+                    <h4>Работники студии</h4>
+                    <div class="list-group mt-3">
+                        {% for worker in studio.workers.all %}
+                            <div class="list-group-item">
+                                {{ worker.username }}
+                            </div>
+                        {% empty %}
+                            <p class="text-muted">Нет работников</p>
+                        {% endfor %}
+                    </div>
+
+                    <hr>
+
+                    <h4>Оборудование</h4>
+                    <div class="list-group mt-3">
+                        {% for equipment in studio.equipment_list %}
+                            <div class="list-group-item">
+                                {{ equipment }}
+                            </div>
+                        {% empty %}
+                            <p class="text-muted">Нет оборудования</p>
+                        {% endfor %}
+                    </div>
+
+                    <hr>
+
+                    <h4>Цены на услуги</h4>
+                    <div class="table-responsive mt-3">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Услуга</th>
+                                    <th>Цена</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for service, price in studio.pricing.items %}
+                                    <tr>
+                                        <td>{{ service }}</td>
+                                        <td>{{ price }} ₽</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="2" class="text-muted">Нет услуг</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

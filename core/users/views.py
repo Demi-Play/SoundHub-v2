@@ -2,11 +2,13 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from .serializers import UserSerializer, RegisterSerializer, UserProfileSerializer, LoginSerializer
 from .models import User, UserProfile
 from django.shortcuts import render, redirect
+from .forms import UserRegistrationForm
 # class UserViewSet(generics.CreateAPIView):
 #     queryset = User.objects.all()
 #     serializer_class = UserSerializer
@@ -18,18 +20,19 @@ def get_users(request):
     users = User.objects.all()
     return render(request, 'users.html', {'users': users})
 
-def register(request):
+def register_view(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        email = request.POST.get('email')
-        if User.objects.filter(username=username).exists():
-            return render(request, 'register.html', {'error': 'Username already exists'})
-        user = User.objects.create_user(username=username, password=password, email=email)
-        user.save()
-        return redirect('login')
-    return render(request, 'register.html')
-
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, 'Регистрация успешно завершена!')
+            return redirect('verify_role')
+        else:
+            messages.error(request, 'Пожалуйста, исправьте ошибки в форме.')
+    else:
+        form = UserRegistrationForm()
+    return render(request, 'users/register.html', {'form': form})
 
 def user_login(request):
     if request.method == 'POST':
@@ -45,7 +48,6 @@ def user_login(request):
 
 @login_required
 def logout_view(request):
-    from django.contrib.auth import logout
     logout(request)
     return redirect('index')
 
@@ -65,6 +67,56 @@ def profile(request):
         profile.save()
         return redirect('profile')
     return render(request, 'profile.html', {'user': user})
+
+@login_required
+def verify_role_view(request):
+    if request.user.is_authenticated:
+        if request.user.user_type:
+            messages.info(request, 'Вы уже выбрали роль.')
+            if request.user.user_type == 'musician':
+                return redirect('musician_dashboard')
+            elif request.user.user_type == 'studio_owner':
+                return redirect('studio_owner_dashboard')
+            else:
+                return redirect('studio_worker_dashboard')
+        
+        if request.method == 'POST':
+            role = request.POST.get('role')
+            if role in dict(User.USER_TYPES):
+                request.user.user_type = role
+                request.user.save()
+                messages.success(request, f'Роль успешно установлена: {dict(User.USER_TYPES)[role]}')
+                if role == 'musician':
+                    return redirect('musician_dashboard')
+                elif role == 'studio_owner':
+                    return redirect('studio_owner_dashboard')
+                else:
+                    return redirect('studio_worker_dashboard')
+            else:
+                messages.error(request, 'Неверная роль.')
+    
+    return render(request, 'users/verify_role.html')
+
+@login_required
+def musician_dashboard(request):
+    if request.user.user_type != 'musician':
+        messages.error(request, 'У вас нет доступа к этой странице.')
+        return redirect('profile')
+    return render(request, 'users/dashboards/musician_dashboard.html')
+
+@login_required
+def studio_owner_dashboard(request):
+    if request.user.user_type != 'studio_owner':
+        messages.error(request, 'У вас нет доступа к этой странице.')
+        return redirect('profile')
+    return render(request, 'users/dashboards/studio_owner_dashboard.html')
+
+@login_required
+def studio_worker_dashboard(request):
+    if request.user.user_type != 'studio_worker':
+        messages.error(request, 'У вас нет доступа к этой странице.')
+        return redirect('profile')
+    return render(request, 'users/dashboards/studio_worker_dashboard.html')
 
 # def update_profile(request):
 #     if request.method == 'POST':

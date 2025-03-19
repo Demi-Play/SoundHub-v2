@@ -16,6 +16,7 @@ class User(AbstractUser):
     user_type = models.CharField(max_length=20, choices=USER_TYPES)
     phone = models.CharField(max_length=20, blank=True)
     is_verified = models.BooleanField(default=False)
+    
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
