@@ -1,192 +1,195 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SoundHub - {% block title %}Главная{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    {% block extra_css %}{% endblock %}
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      SoundHub -{% block title %}
+        Главная
+      {% endblock %}
+    </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    {% block extra_css %}
+    {% endblock %}
+  </head>
+  <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="{% url 'index' %}">SoundHub</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'index' %}">Главная</a>
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'index' %}">SoundHub</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'index' %}">Главная</a>
+            </li>
+            {% if user.is_authenticated %}
+              {% if user.user_type == 'musician' %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'musician_dashboard' %}"><i class="fas fa-home me-1"></i>Панель управления</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'studios:studios_list' %}"><i class="fas fa-plus me-1"></i>Создать проект</a>
+                </li>
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="projectsDropdown" role="button" data-bs-toggle="dropdown"><i class="fas fa-folder me-1"></i>Мои проекты</a>
+                  <ul class="dropdown-menu">
+                    {% for project in user.client_projects.all|slice:':5' %}
+                      <li>
+                        <a class="dropdown-item" href="{% url 'chats:project_chat' project.id %}">
+                          {{ project.title }}
+                          {% if project.chat.get_last_message and not project.chat.get_last_message.is_read and project.chat.get_last_message.sender != user %}
+                            <span class="badge bg-danger">Новое</span>
+                          {% endif %}
+                        </a>
+                      </li>
+                    {% empty %}
+                      <li>
+                        <span class="dropdown-item text-muted">Нет проектов</span>
+                      </li>
+                    {% endfor %}
+                    {% if user.client_projects.count > 5 %}
+                      <li>
+                        <hr class="dropdown-divider" />
+                      </li>
+                      <li>
+                        <a class="dropdown-item" href="{% url 'musician_projects' %}">Все проекты</a>
+                      </li>
+                    {% endif %}
+                  </ul>
+                </li>
+              {% elif user.user_type == 'studio_owner' %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'studio_owner_dashboard' %}"><i class="fas fa-home me-1"></i>Панель управления</a>
+                </li>
+                {% if user.owned_studios.exists %}
+                  {% with studio=user.owned_studios.first %}
+                    <li class="nav-item dropdown">
+                      <a class="nav-link dropdown-toggle" href="#" id="studioDropdown" role="button" data-bs-toggle="dropdown"><i class="fas fa-building me-1"></i>{{ studio.name }}</a>
+                      <ul class="dropdown-menu">
+                        <li>
+                          <a class="dropdown-item" href="{% url 'studios:studio_detail' studio.id %}"><i class="fas fa-info-circle me-1"></i>Информация</a>
+                        </li>
+                        <li>
+                          <a class="dropdown-item" href="{% url 'studios:studio_schedule' studio.id %}"><i class="fas fa-calendar me-1"></i>Расписание</a>
+                        </li>
+                        <li>
+                          <a class="dropdown-item" href="{% url 'studios:studio_workers' studio.id %}"><i class="fas fa-users me-1"></i>Сотрудники</a>
+                        </li>
+                      </ul>
                     </li>
-                    {% if user.is_authenticated %}
-                        {% if user.user_type == 'musician' %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'musician_dashboard' %}">
-                                    <i class="fas fa-home me-1"></i>Панель управления
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'studios:studios_list' %}">
-                                    <i class="fas fa-plus me-1"></i>Создать проект
-                                </a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="projectsDropdown" role="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-folder me-1"></i>Мои проекты
-                                </a>
-                                <ul class="dropdown-menu">
-                                    {% for project in user.client_projects.all|slice:":5" %}
-                                        <li>
-                                            <a class="dropdown-item" href="{% url 'chats:project_chat' project.id %}">
-                                                {{ project.title }}
-                                                {% if project.chat.get_last_message and not project.chat.get_last_message.is_read and project.chat.get_last_message.sender != user %}
-                                                    <span class="badge bg-danger">Новое</span>
-                                                {% endif %}
-                                            </a>
-                                        </li>
-                                    {% empty %}
-                                        <li><span class="dropdown-item text-muted">Нет проектов</span></li>
-                                    {% endfor %}
-                                    {% if user.client_projects.count > 5 %}
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" href="{% url 'musician_projects' %}">Все проекты</a></li>
-                                    {% endif %}
-                                </ul>
-                            </li>
-                        {% elif user.user_type == 'studio_owner' %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'studio_owner_dashboard' %}">
-                                    <i class="fas fa-home me-1"></i>Панель управления
-                                </a>
-                            </li>
-                            {% if user.owned_studios.exists %}
-                                {% with studio=user.owned_studios.first %}
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="studioDropdown" role="button" data-bs-toggle="dropdown">
-                                        <i class="fas fa-building me-1"></i>{{ studio.name }}
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <li>
-                                            <a class="dropdown-item" href="{% url 'studios:studio_detail' studio.id %}">
-                                                <i class="fas fa-info-circle me-1"></i>Информация
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="{% url 'studios:studio_schedule' studio.id %}">
-                                                <i class="fas fa-calendar me-1"></i>Расписание
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" href="{% url 'studios:studio_workers' studio.id %}">
-                                                <i class="fas fa-users me-1"></i>Сотрудники
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="projectsDropdown" role="button" data-bs-toggle="dropdown">
-                                        <i class="fas fa-folder me-1"></i>Проекты
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        {% for project in studio.studio_projects.all|slice:":5" %}
-                                            <li>
-                                                <a class="dropdown-item" href="{% url 'chats:project_chat' project.id %}">
-                                                    {{ project.title }}
-                                                    {% if project.chat.get_last_message and not project.chat.get_last_message.is_read and project.chat.get_last_message.sender != user %}
-                                                        <span class="badge bg-danger">Новое</span>
-                                                    {% endif %}
-                                                </a>
-                                            </li>
-                                        {% empty %}
-                                            <li><span class="dropdown-item text-muted">Нет проектов</span></li>
-                                        {% endfor %}
-                                        {% if studio.studio_projects.count > 5 %}
-                                            <li><hr class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item" href="{% url 'studios:studio_projects' studio.id %}">Все проекты</a></li>
-                                        {% endif %}
-                                    </ul>
-                                </li>
-                                {% endwith %}
-                            {% endif %}
-                        {% elif user.user_type == 'studio_worker' %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'studio_worker_dashboard' %}">
-                                    <i class="fas fa-home me-1"></i>Панель управления
-                                </a>
-                            </li>
-                            {% if user.studio %}
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="tasksDropdown" role="button" data-bs-toggle="dropdown">
-                                    <i class="fas fa-tasks me-1"></i>Мои задачи
-                                </a>
-                                <ul class="dropdown-menu">
-                                    {% for task in user.assigned_tasks.all|slice:":5" %}
-                                        <li>
-                                            <a class="dropdown-item" href="{% url 'studios:task_detail' task.id %}">
-                                                {{ task.title }}
-                                                {% if task.has_updates %}
-                                                    <span class="badge bg-info">Обновлено</span>
-                                                {% endif %}
-                                            </a>
-                                        </li>
-                                    {% empty %}
-                                        <li><span class="dropdown-item text-muted">Нет активных задач</span></li>
-                                    {% endfor %}
-                                    {% if user.assigned_tasks.count > 5 %}
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item" href="{% url 'studios:worker_tasks' %}">Все задачи</a></li>
-                                    {% endif %}
-                                </ul>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'studios:worker_schedule' %}">
-                                    <i class="fas fa-calendar me-1"></i>Расписание
-                                </a>
-                            </li>
-                            {% endif %}
-                        {% endif %}
-                    {% endif %}
-                </ul>
-                <ul class="navbar-nav">
-                    {% if user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                                {{ user.username }}
+                    <li class="nav-item dropdown">
+                      <a class="nav-link dropdown-toggle" href="#" id="projectsDropdown" role="button" data-bs-toggle="dropdown"><i class="fas fa-folder me-1"></i>Проекты</a>
+                      <ul class="dropdown-menu">
+                        {% for project in studio.studio_projects.all|slice:':5' %}
+                          <li>
+                            <a class="dropdown-item" href="{% url 'chats:project_chat' project.id %}">
+                              {{ project.title }}
+                              {% if project.chat.get_last_message and not project.chat.get_last_message.is_read and project.chat.get_last_message.sender != user %}
+                                <span class="badge bg-danger">Новое</span>
+                              {% endif %}
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{% url 'profile' %}">Профиль</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'logout' %}">Выйти</a></li>
-                            </ul>
+                          </li>
+                        {% empty %}
+                          <li>
+                            <span class="dropdown-item text-muted">Нет проектов</span>
+                          </li>
+                        {% endfor %}
+                        {% if studio.studio_projects.count > 5 %}
+                          <li>
+                            <hr class="dropdown-divider" />
+                          </li>
+                          <li>
+                            <a class="dropdown-item" href="{% url 'studios:studio_projects' studio.id %}">Все проекты</a>
+                          </li>
+                        {% endif %}
+                      </ul>
+                    </li>
+                  {% endwith %}
+                {% endif %}
+              {% elif user.user_type == 'studio_worker' %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'studio_worker_dashboard' %}"><i class="fas fa-home me-1"></i>Панель управления</a>
+                </li>
+                {% if user.studio %}
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="tasksDropdown" role="button" data-bs-toggle="dropdown"><i class="fas fa-tasks me-1"></i>Мои задачи</a>
+                    <ul class="dropdown-menu">
+                      {% for task in user.assigned_tasks.all|slice:':5' %}
+                        <li>
+                          <a class="dropdown-item" href="{% url 'studios:task_detail' task.id %}">
+                            {{ task.title }}
+                            {% if task.has_updates %}
+                              <span class="badge bg-info">Обновлено</span>
+                            {% endif %}
+                          </a>
                         </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">Войти</a>
+                      {% empty %}
+                        <li>
+                          <span class="dropdown-item text-muted">Нет активных задач</span>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'register' %}">Регистрация</a>
+                      {% endfor %}
+                      {% if user.assigned_tasks.count > 5 %}
+                        <li>
+                          <hr class="dropdown-divider" />
                         </li>
-                    {% endif %}
+                        <li>
+                          <a class="dropdown-item" href="{% url 'studios:worker_tasks' %}">Все задачи</a>
+                        </li>
+                      {% endif %}
+                    </ul>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url 'studios:worker_schedule' %}"><i class="fas fa-calendar me-1"></i>Расписание</a>
+                  </li>
+                {% endif %}
+              {% endif %}
+            {% endif %}
+          </ul>
+          <ul class="navbar-nav">
+            {% if user.is_authenticated %}
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">{{ user.username }}</a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="{% url 'profile' %}">Профиль</a>
+                  </li>
+                  <li>
+                    <hr class="dropdown-divider" />
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="{% url 'logout' %}">Выйти</a>
+                  </li>
                 </ul>
-            </div>
+              </li>
+            {% else %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'login' %}">Войти</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'register' %}">Регистрация</a>
+              </li>
+            {% endif %}
+          </ul>
         </div>
+      </div>
     </nav>
 
     {% if messages %}
-    <div class="container mt-3">
+      <div class="container mt-3">
         {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
             {{ message }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+          </div>
         {% endfor %}
-    </div>
+      </div>
     {% endif %}
 
-    {% block content %}{% endblock %}
+    {% block content %}
+    {% endblock %}
 
+    <!-- 
     <footer class="bg-dark text-light py-4 mt-5">
         <div class="container">
             <div class="row">
@@ -201,8 +204,9 @@
             </div>
         </div>
     </footer>
-
+     -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    {% block extra_js %}{% endblock %}
-</body>
+    {% block extra_js %}
+    {% endblock %}
+  </body>
 </html>

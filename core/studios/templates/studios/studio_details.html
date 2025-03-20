@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load studio_extras %}
+
+{% block title %}{{ studio.name }} - Детали студии{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow">
+                {% if studio.logo %}
+                    <img src="{{ studio.logo.url }}" class="card-img-top" alt="{{ studio.name }}" style="height: 300px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h2 class="card-title">{{ studio.name }}</h2>
+                    <p class="card-text">{{ studio.description }}</p>
+
+                    <div class="mt-4">
+                        <h4>Оборудование</h4>
+                        <ul class="list-group list-group-flush">
+                            {% for equipment in studio.equipment_list %}
+                                <li class="list-group-item">{{ equipment }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="mt-4">
+                        <h4>Услуги и цены</h4>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Услуга</th>
+                                        <th>Цена</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for service, price in studio.pricing.items %}
+                                        <tr>
+                                            <td>{{ service }}</td>
+                                            <td>{{ price }} ₽</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {% if user.is_authenticated and user.user_type == 'musician' %}
+                        <div class="mt-4">
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createRequestModal">
+                                Создать заявку
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-body">
+                    <h4 class="card-title">Контактная информация</h4>
+                    <ul class="list-unstyled">
+                        {% if studio.address %}
+                        <li class="mb-2">
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            {{ studio.address }}
+                        </li>
+                        {% endif %}
+                        <li class="mb-2">
+                            <i class="fas fa-phone me-2"></i>
+                            {{ studio.owner.phone }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-envelope me-2"></i>
+                            {{ studio.owner.email }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-user me-2"></i>
+                            Владелец: {{ studio.owner.get_full_name|default:studio.owner.username }}
+                        </li>
+                    </ul>
+
+                    {% if studio.working_hours %}
+                        <h5 class="mt-4">Часы работы</h5>
+                        <ul class="list-unstyled">
+                            {% for day, hours in studio.working_hours.items %}
+                                <li>{{ day }}: {{ hours }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if studio.reviews.exists %}
+                <div class="card shadow mt-4">
+                    <div class="card-body">
+                        <h4 class="card-title">Отзывы</h4>
+                        <div class="list-group list-group-flush">
+                            {% for review in studio.reviews.all|slice:":3" %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="mb-1">{{ review.user.username }}</h6>
+                                        <small class="text-muted">{{ review.created_at|date }}</small>
+                                    </div>
+                                    <div class="mb-1">
+                                        {% for i in review.rating|get_range %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% endfor %}
+                                    </div>
+                                    <p class="mb-1">{{ review.text }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if user.is_authenticated and user.user_type == 'musician' %}
+    <!-- Модальное окно создания заявки -->
+    <div class="modal fade" id="createRequestModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Создать заявку в студию "{{ studio.name }}"</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{% url 'studios:create_studio_request' studio.id %}" method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Тип проекта</label>
+                            <select name="project_type" class="form-select" required>
+                                <option value="album">Альбом</option>
+                                <option value="single">Сингл</option>
+                                <option value="ep">EP</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Название проекта</label>
+                            <input type="text" name="title" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Описание проекта</label>
+                            <textarea name="description" class="form-control" rows="3" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn btn-primary">Создать заявку</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %} 

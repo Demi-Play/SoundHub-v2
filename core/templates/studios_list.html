@@ -46,7 +46,7 @@
                         </ul>
 
                         <div class="mt-3">
-                            <a href="{% url 'studio_detail' studio.id %}" class="btn btn-outline-primary">Подробнее</a>
+                            <a href="{% url 'studios:studio_detail' studio.id %}" class="btn btn-outline-primary">Подробнее</a>
                             {% if user.is_authenticated and user.user_type == 'musician' %}
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createRequestModal{{ studio.id }}">
                                     Создать заявку
@@ -66,7 +66,7 @@
                                 <h5 class="modal-title">Создать заявку в студию "{{ studio.name }}"</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
-                            <form action="{% url 'create_studio_request' studio.id %}" method="post">
+                            <form action="{% url 'studios:create_studio_request' studio.id %}" method="post">
                                 {% csrf_token %}
                                 <div class="modal-body">
                                     <div class="mb-3">

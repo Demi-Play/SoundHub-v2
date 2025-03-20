@@ -24,7 +24,7 @@
                             <p class="mb-1">{{ studio.description|truncatewords:30 }}</p>
                         </div>
                         <div>
-                            <a href="{% url 'studio_detail' studio.id %}" class="btn btn-primary">Управление</a>
+                            <a href="{% url 'studios:studio_detail' studio.id %}" class="btn btn-primary">Управление</a>
                         </div>
                     </div>
                 </div>

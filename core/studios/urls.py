@@ -20,7 +20,8 @@ from .views import (
     worker_skills,
     worker_portfolio,
     task_detail,
-    request_time_off
+    request_time_off,
+    studio_detail_view
 )
 
 router = DefaultRouter()
@@ -31,11 +32,12 @@ app_name = 'studios'
 urlpatterns = [
     # Публичные URL
     path('all/', studios_list_view, name='studios_list'),
+    path('<int:studio_id>/', studio_detail_view, name='studio_detail'),
     path('request/<int:studio_id>/', create_studio_request_view, name='create_studio_request'),
     
     # URL для владельцев студий
     path('', studio_list_create_view, name='studio_list'),
-    path('<int:studio_id>/', studio_retrieve_update_view, name='studio_detail'),
+    path('owner/<int:studio_id>/', studio_retrieve_update_view, name='studio_owner_detail'),
     path('<int:studio_id>/statistics/', studio_statistics_view, name='studio_statistics'),
     path('<int:studio_id>/projects/', studio_projects_view, name='studio_projects'),
     path('<int:studio_id>/projects/create/', studio_create_project_view, name='studio_create_project'),

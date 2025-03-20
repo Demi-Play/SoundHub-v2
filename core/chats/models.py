@@ -23,10 +23,16 @@ class Project(models.Model):
 
 class Chat(models.Model):
     project = models.OneToOneField(Project, on_delete=models.CASCADE, related_name='chat', null=True, blank=True)
+    studio = models.ForeignKey('studios.Studio', on_delete=models.CASCADE, related_name='chats', null=True, blank=True)
+    participants = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='chats', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     def get_last_message(self):
         return self.messages.order_by('-created_at').first()
+
+    def get_unread_messages_count(self, user):
+        return self.messages.filter(is_read=False).exclude(sender=user).count()
 
     def __str__(self):
         return f'Чат проекта: {self.project.title if self.project else "Без проекта"}'

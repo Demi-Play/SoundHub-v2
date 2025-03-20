@@ -248,24 +248,35 @@ def create_studio_request_view(request, studio_id):
 
         if not all([project_type, title, description]):
             messages.error(request, 'Пожалуйста, заполните все поля.')
-            return redirect('studios_list')
+            return redirect('studios:studios_list')
 
-        # Создаем чат для общения
-        chat = Chat.objects.create(studio=studio)
-        chat.participants.add(request.user, studio.owner)
-        chat.save()
+        try:
+            # Создаем проект
+            project = Project.objects.create(
+                title=title,
+                description=description,
+                client=request.user,
+                studio=studio,
+                status='new'
+            )
 
-        # Создаем проект
-        project = Project.objects.create(
-            chat=chat,
-            type=project_type,
-            title=title
-        )
+            # Создаем чат
+            chat = Chat.objects.create(
+                project=project,
+                studio=studio
+            )
+            
+            # Добавляем участников
+            chat.participants.add(request.user, studio.owner)
 
-        messages.success(request, 'Заявка успешно создана!')
-        return redirect('studios_list')
+            messages.success(request, 'Заявка успешно создана!')
+            return redirect('chats:project_chat', project_id=project.id)
 
-    return redirect('studios_list')
+        except Exception as e:
+            messages.error(request, f'Произошла ошибка при создании заявки: {str(e)}')
+            return redirect('studios:studios_list')
+
+    return redirect('studios:studios_list')
 
 @login_required
 def studio_schedule(request, studio_id):
@@ -343,3 +354,9 @@ def request_time_off(request):
         return render(request, 'errors/403.html', status=403)
     
     return render(request, 'studios/request_time_off.html')
+
+def studio_detail_view(request, studio_id):
+    studio = get_object_or_404(Studio.objects.select_related('owner'), id=studio_id)
+    return render(request, 'studios/studio_details.html', {
+        'studio': studio
+    })
