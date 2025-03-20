@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Доступные студии{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Доступные студии</h2>
+            <p class="text-muted">Выберите студию, в которую хотите отправить заявку на работу</p>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        {% for studio in studios %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if studio.logo %}
+                    <img src="{{ studio.logo.url }}" class="card-img-top" alt="{{ studio.name }}" style="height: 200px; object-fit: cover;">
+                {% else %}
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                        <i class="fas fa-building fa-3x text-muted"></i>
+                    </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ studio.name }}</h5>
+                    <p class="card-text">{{ studio.description|truncatewords:30 }}</p>
+                    
+                    <div class="mb-3">
+                        <h6>Оборудование:</h6>
+                        <ul class="list-unstyled">
+                            {% for equipment in studio.equipment_list|slice:":3" %}
+                                <li><i class="fas fa-check text-success me-2"></i>{{ equipment }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6>Контактная информация:</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-map-marker-alt me-2"></i>{{ studio.address }}</li>
+                            <li><i class="fas fa-phone me-2"></i>{{ studio.owner.phone|default:"Не указан" }}</li>
+                            <li><i class="fas fa-envelope me-2"></i>{{ studio.owner.email }}</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'studios:studio_detail' studio.id %}" class="btn btn-outline-primary">
+                            Подробнее
+                        </a>
+                        {% if not studio in user.work_studios.all %}
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#joinRequestModal{{ studio.id }}">
+                                Отправить заявку
+                            </button>
+                        {% else %}
+                            <span class="badge bg-success">Вы уже работаете здесь</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно для отправки заявки -->
+        <div class="modal fade" id="joinRequestModal{{ studio.id }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Отправить заявку на работу в студию "{{ studio.name }}"</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form method="post" action="{% url 'studios:request_to_join_studio' studio.id %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="message{{ studio.id }}" class="form-label">Сообщение (необязательно)</label>
+                                <textarea class="form-control" id="message{{ studio.id }}" name="message" rows="3" 
+                                        placeholder="Расскажите о себе, своем опыте и почему вы хотите работать в этой студии"></textarea>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                                <button type="submit" class="btn btn-primary">Отправить заявку</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                В данный момент нет доступных студий.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

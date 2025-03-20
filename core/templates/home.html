@@ -1,16 +1,247 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}
-  Home
+  SoundHub - Платформа для музыкального сотрудничества
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static "images/hero-bg.jpg" %}');
+        background-size: cover;
+        background-position: center;
+        color: white;
+        padding: 150px 0;
+        margin-bottom: 50px;
+    }
+
+    .feature-card {
+        border: none;
+        border-radius: 15px;
+        transition: transform 0.3s;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: #007bff;
+    }
+
+    .user-type-section {
+        padding: 80px 0;
+        background-color: #f8f9fa;
+    }
+
+    .user-type-card {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .user-type-header {
+        padding: 20px;
+        text-align: center;
+        background: #007bff;
+        color: white;
+    }
+
+    .user-type-body {
+        padding: 30px;
+    }
+
+    .cta-section {
+        background: linear-gradient(135deg, #007bff, #00bcd4);
+        color: white;
+        padding: 80px 0;
+        text-align: center;
+    }
+
+    .stats-section {
+        padding: 50px 0;
+    }
+
+    .stat-item {
+        text-align: center;
+        padding: 20px;
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #007bff;
+    }
+
+    .testimonial-card {
+        border-radius: 15px;
+        padding: 30px;
+        margin: 20px 0;
+        background: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .testimonial-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        margin-bottom: 15px;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-  <div class="container">
-    <h1>Welcome to SoundHub-v2</h1>
-    <p>Your ultimate platform for music collaboration.</p>
-    {% if not user.is_authenticated %}
-      <a href="/api/users/login" class="btn btn-primary">Login</a>
-      <a href="/api/users/register" class="btn btn-secondary ms-2">Register</a>
-    {% endif %}
-  </div>
+<!-- Hero Section -->
+<section class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-4 mb-4">SoundHub</h1>
+        <p class="lead mb-4">Ваша платформа для музыкального сотрудничества и творчества</p>
+        {% if not user.is_authenticated %}
+            <a href="/api/users/register" class="btn btn-primary btn-lg me-3">Начать работу</a>
+            <a href="/api/users/login" class="btn btn-outline-light btn-lg">Войти</a>
+        {% else %}
+            {% if user.user_type == 'musician' %}
+                <a href="{% url 'musician_dashboard' %}" class="btn btn-primary btn-lg">Мой профиль</a>
+            {% elif user.user_type == 'studio_owner' %}
+                <a href="{% url 'studio_owner_dashboard' %}" class="btn btn-primary btn-lg">Моя студия</a>
+            {% else %}
+                <a href="{% url 'studio_worker_dashboard' %}" class="btn btn-primary btn-lg">Мой профиль</a>
+            {% endif %}
+        {% endif %}
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Почему SoundHub?</h2>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card feature-card h-100 text-center p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-music"></i>
+                    </div>
+                    <h3>Музыкальное сотрудничество</h3>
+                    <p>Создавайте проекты, находите единомышленников и работайте вместе над музыкой</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card feature-card h-100 text-center p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                    <h3>Профессиональные студии</h3>
+                    <p>Доступ к лучшим студиям звукозаписи и профессиональному оборудованию</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card feature-card h-100 text-center p-4">
+                    <div class="feature-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h3>Безопасные сделки</h3>
+                    <p>Надежная система оплаты и защиты интересов всех участников</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- User Types Section -->
+<section class="user-type-section">
+    <div class="container">
+        <h2 class="text-center mb-5">Для кого SoundHub?</h2>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="user-type-card">
+                    <div class="user-type-header">
+                        <h3>Музыканты</h3>
+                    </div>
+                    <div class="user-type-body">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Создание проектов</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Поиск студий</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Сотрудничество</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="user-type-card">
+                    <div class="user-type-header">
+                        <h3>Владельцы студий</h3>
+                    </div>
+                    <div class="user-type-body">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Управление студией</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Поиск клиентов</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Аналитика</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="user-type-card">
+                    <div class="user-type-header">
+                        <h3>Работники студий</h3>
+                    </div>
+                    <div class="user-type-body">
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success me-2"></i>Управление задачами</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Расписание</li>
+                            <li><i class="fas fa-check text-success me-2"></i>Коммуникация</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <div class="stat-number">1000+</div>
+                    <div class="stat-label">Музыкантов</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Студий</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <div class="stat-number">500+</div>
+                    <div class="stat-label">Проектов</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-item">
+                    <div class="stat-number">98%</div>
+                    <div class="stat-label">Довольных клиентов</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <h2 class="mb-4">Готовы начать свой музыкальный путь?</h2>
+        <p class="lead mb-4">Присоединяйтесь к сообществу SoundHub и создавайте музыку вместе</p>
+        {% if not user.is_authenticated %}
+            <a href="/api/users/register" class="btn btn-light btn-lg">Зарегистрироваться</a>
+        {% endif %}
+    </div>
+</section>
 {% endblock %}

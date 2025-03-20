@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>{{ project.title }}</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5>Описание проекта</h5>
+                        <p>{{ project.description }}</p>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>Информация о проекте</h5>
+                            <ul class="list-unstyled">
+                                <li><strong>Статус:</strong> 
+                                    <span class="badge {% if project.status == 'completed' %}bg-success{% elif project.status == 'in_progress' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                        {{ project.get_status_display }}
+                                    </span>
+                                </li>
+                                <li><strong>Дата начала:</strong> {{ project.start_date|date:"d.m.Y" }}</li>
+                                {% if project.deadline %}
+                                    <li><strong>Дедлайн:</strong> {{ project.deadline|date:"d.m.Y" }}</li>
+                                {% endif %}
+                                <li><strong>Бюджет:</strong> {{ project.budget }} ₽</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    
+                </div>
+            </div>
+
+            
+
+        <div class="col-md-4">
+            <!-- Сотрудники студии -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Сотрудники студии</h5>
+                </div>
+                <div class="card-body">
+                    {% if workers %}
+                        <div class="list-group">
+                            {% for worker in workers %}
+                                <div class="list-group-item">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0">
+                                            {% if worker.profile.avatar %}
+                                                <img src="{{ worker.profile.avatar.url }}" alt="Avatar" class="rounded-circle" width="40" height="40">
+                                            {% else %}
+                                                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                    {{ worker.get_full_name|first|upper }}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <h6 class="mb-0">{{ worker.get_full_name|default:worker.username }}</h6>
+                                            <small class="text-muted">{{ worker.profile.specialization }}</small>
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">В студии пока нет сотрудников</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Действия с проектом -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>Действия</h5>
+                </div>
+                <div class="card-body">
+                    {% if project.status == 'in_progress' %}
+                        <form method="post" action="{% url 'studios:studio_complete_project' studio.id project.id %}" class="mb-3" onsubmit="return confirm('Вы уверены, что хотите завершить этот проект?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-check me-1"></i>Завершить проект
+                            </button>
+                        </form>
+                    {% endif %}
+                    <a href="{% url 'chats:project_chat' project.id %}" class="btn btn-primary w-100">
+                        <i class="fas fa-comments me-1"></i>Перейти в чат
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

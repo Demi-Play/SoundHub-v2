@@ -72,7 +72,7 @@ class ProjectCompleteView(APIView):
         if request.user not in [chat.studio.owner, *chat.participants.exclude(id=chat.studio.owner.id)]:
             return Response({"error": "Only project participants can complete"}, status=403)
             
-        project.is_completed = True
+        project.status = 'completed'
         project.save()
         
         # Логика распределения средств
@@ -100,7 +100,7 @@ def project_chat(request, project_id):
     project = get_object_or_404(Project, id=project_id)
     
     # Проверяем права доступа
-    if request.user != project.client and request.user not in project.studio.workers.all():
+    if request.user != project.client and request.user != project.studio.owner and request.user not in project.studio.workers.all():
         raise PermissionDenied
     
     chat, created = Chat.objects.get_or_create(project=project)
@@ -118,11 +118,23 @@ def project_chat(request, project_id):
             )
             
             for file in files:
+                # Определяем тип файла по MIME-типу
+                content_type = file.content_type
+                if content_type.startswith('image/'):
+                    file_type = 'image'
+                elif content_type.startswith('video/'):
+                    file_type = 'video'
+                elif content_type.startswith('audio/'):
+                    file_type = 'audio'
+                else:
+                    file_type = 'document'
+
                 File.objects.create(
                     message=message,
                     file=file,
                     filename=file.name,
-                    size=file.size
+                    size=file.size,
+                    file_type=file_type
                 )
             
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -142,25 +154,37 @@ def project_chat(request, project_id):
 
 @login_required
 @require_POST
-def mark_as_read(request):
-    data = json.loads(request.body)
-    message_id = data.get('message_id')
-    message = get_object_or_404(Message, id=message_id)
-    
-    if request.user != message.chat.project.client and request.user not in message.chat.project.studio.workers.all():
-        raise PermissionDenied
-    
-    message.is_read = True
-    message.save()
-    
-    return JsonResponse({'status': 'ok'})
+def mark_messages_as_read(request):
+    try:
+        data = json.loads(request.body)
+        chat_id = data.get('chat_id')
+        if not chat_id:
+            return JsonResponse({'error': 'Chat ID is required'}, status=400)
+        
+        chat = Chat.objects.get(id=chat_id)
+        # Проверяем, является ли пользователь участником чата
+        if request.user not in chat.participants.all():
+            return JsonResponse({'error': 'You are not a participant of this chat'}, status=403)
+        
+        # Отмечаем все непрочитанные сообщения как прочитанные
+        chat.messages.filter(
+            is_read=False
+        ).exclude(
+            sender=request.user
+        ).update(is_read=True)
+        
+        return JsonResponse({'status': 'success'})
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+    except Chat.DoesNotExist:
+        return JsonResponse({'error': 'Chat not found'}, status=404)
 
 @login_required
 def download_file(request, file_id):
     file = get_object_or_404(File, id=file_id)
     message = file.message
     
-    if request.user != message.chat.project.client and request.user not in message.chat.project.studio.workers.all():
+    if request.user != message.chat.project.client and request.user != message.chat.project.studio.owner and request.user not in message.chat.project.studio.workers.all():
         raise PermissionDenied
     
     response = JsonResponse({

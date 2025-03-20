@@ -115,6 +115,24 @@
                     </div>
                 </div>
             {% endif %}
+
+            {% if user.is_authenticated and user.user_type == 'studio_worker' and not user in studio.workers.all %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4>Присоединиться к студии</h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="joinStudioForm">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="message" class="form-label">Сообщение (необязательно)</label>
+                                <textarea class="form-control" id="message" name="message" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Отправить заявку</button>
+                        </form>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -157,4 +175,40 @@
         </div>
     </div>
 {% endif %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const joinStudioForm = document.getElementById('joinStudioForm');
+    if (joinStudioForm) {
+        joinStudioForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch(`/api/studios/{{ studio.id }}/join-request/`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Заявка успешно отправлена!');
+                    joinStudioForm.reset();
+                } else {
+                    alert(data.error || 'Ошибка при отправке заявки');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Произошла ошибка при отправке заявки');
+            });
+        });
+    }
+});
+</script>
+{% endblock %}
 {% endblock %} 

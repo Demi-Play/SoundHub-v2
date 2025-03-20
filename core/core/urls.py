@@ -40,6 +40,7 @@ urlpatterns = [
     path('', index, name='index'),
     path('admin/', admin.site.urls),
     path('api/users/', include('users.urls')),
+    path('api/users/', include('api.users.urls', namespace='api_users')),
     path('api/studios/', include('studios.urls', namespace='studios')),
     path('api/payments/', include(('payments.urls', 'payments'), namespace='payments')),
     path('api/chats/', include('chats.urls', namespace='chats')),

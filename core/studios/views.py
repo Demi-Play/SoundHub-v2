@@ -5,14 +5,19 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth import get_user_model
 from .forms import StudioForm, StudioVerificationForm
-from .models import Studio, StudioVerification, StudioStatistics
+from .models import Studio, StudioVerification, StudioStatistics, StudioWorkerRequest
 from .serializers import StudioSerializer, StudioVerificationSerializer, StudioStatisticsSerializer
 from chats.models import Chat, Project
 from chats.serializers import ChatSerializer, ProjectSerializer
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+
+User = get_user_model()
 
 class IsStudioOwner(permissions.BasePermission):
     def has_permission(self, request, view):
@@ -132,10 +137,10 @@ class StudioOwnerViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Project ID is required'}, status=status.HTTP_400_BAD_REQUEST)
 
         project = get_object_or_404(Project, id=project_id, chat__studio=studio)
-        if project.is_completed:
+        if project.status == 'completed':
             return Response({'error': 'Project is already completed'}, status=status.HTTP_400_BAD_REQUEST)
 
-        project.is_completed = True
+        project.status = 'completed'
         project.save()
 
         # Update studio statistics
@@ -165,24 +170,40 @@ def studio_statistics_view(request, studio_id):
 
 @login_required
 def studio_projects_view(request, studio_id):
+    studio = get_object_or_404(Studio, id=studio_id)
+    
+    # Если пользователь - владелец студии, перенаправляем на специальное представление
+    if request.user.user_type == 'studio_owner' and request.user.is_verified:
+        return studio_owner_projects_view(request, studio_id)
+    
+    # Для музыкантов показываем только их проекты
+    user_projects = Project.objects.filter(
+        studio=studio,
+        client=request.user
+    ).select_related('chat')
+    
+    return render(request, 'studios/studio_projects.html', {
+        'studio': studio,
+        'user_projects': user_projects
+    })
+
+@login_required
+def studio_owner_projects_view(request, studio_id):
     if request.user.user_type != 'studio_owner' or not request.user.is_verified:
         return render(request, 'errors/403.html', status=403)
 
     studio = get_object_or_404(Studio, id=studio_id, owner=request.user)
     
-    # Получаем заявки на проекты (чаты без проектов)
-    project_requests = Chat.objects.filter(studio=studio, project__isnull=True)
+    # Получаем все проекты студии
+    projects = Project.objects.filter(studio=studio).select_related('chat', 'client')
     
-    # Получаем активные проекты
-    active_projects = Project.objects.filter(
-        chat__studio=studio,
-        is_completed=False
-    ).select_related('chat')
-
-    return render(request, 'studio_projects.html', {
+    # Получаем работников студии
+    workers = studio.workers.all()
+    
+    return render(request, 'studios/studio_owner_projects.html', {
         'studio': studio,
-        'project_requests': project_requests,
-        'active_projects': active_projects
+        'projects': projects,
+        'workers': workers
     })
 
 @login_required
@@ -220,8 +241,8 @@ def studio_complete_project_view(request, studio_id):
 
         if project_id:
             project = get_object_or_404(Project, id=project_id, chat__studio=studio)
-            if not project.is_completed:
-                project.is_completed = True
+            if project.status != 'completed':
+                project.status = 'completed'
                 project.save()
 
                 # Обновляем статистику
@@ -291,10 +312,22 @@ def studio_workers(request, studio_id):
     if request.user.user_type != 'studio_owner' or not request.user.is_verified:
         return render(request, 'errors/403.html', status=403)
     
-    
-    
     studio = get_object_or_404(Studio, id=studio_id, owner=request.user)
-    return render(request, 'studios/studio_workers.html', {'studio': studio})
+    
+    # Получаем текущих работников
+    current_workers = studio.workers.all()
+    
+    # Получаем заявки на вступление
+    worker_requests = StudioWorkerRequest.objects.filter(
+        studio=studio,
+        status='pending'
+    ).select_related('worker')
+    
+    return render(request, 'studios/studio_workers.html', {
+        'studio': studio,
+        'current_workers': current_workers,
+        'worker_requests': worker_requests
+    })
 
 @login_required
 def studio_finances(request, studio_id):
@@ -321,10 +354,15 @@ def worker_schedule(request):
 
 @login_required
 def worker_tasks(request):
-    if request.user.user_type != 'studio_worker':
+    if request.user.user_type != 'studio_worker' or request.user.user_type != 'studio_owner':
         return render(request, 'errors/403.html', status=403)
     
-    return render(request, 'studios/worker_tasks.html')
+    if request.user.user_type == 'studio_worker':
+        tasks = Project.objects.filter(client=request.user)
+    else:
+        tasks = Project.objects.filter(studio=request.user.owned_studios.first())
+    
+    return render(request, 'studios/worker_tasks.html', {'tasks': tasks})
 
 @login_required
 def worker_skills(request):
@@ -342,7 +380,7 @@ def worker_portfolio(request):
 
 @login_required
 def task_detail(request, task_id):
-    if request.user.user_type != 'studio_worker':
+    if request.user.user_type != 'studio_worker' or request.user.user_type != 'studio_owner':
         return render(request, 'errors/403.html', status=403)
     
     task = get_object_or_404(Task, id=task_id)
@@ -360,3 +398,155 @@ def studio_detail_view(request, studio_id):
     return render(request, 'studios/studio_details.html', {
         'studio': studio
     })
+
+@login_required
+@require_POST
+def add_worker_to_chat(request, project_id):
+    if request.user.user_type != 'studio_owner' or not request.user.is_verified:
+        return JsonResponse({'error': 'Permission denied'}, status=403)
+    
+    project = get_object_or_404(Project, id=project_id)
+    studio = project.studio
+    
+    if request.user != studio.owner:
+        return JsonResponse({'error': 'Permission denied'}, status=403)
+    
+    worker_id = request.POST.get('worker_id')
+    if not worker_id:
+        return JsonResponse({'error': 'Worker ID is required'}, status=400)
+    
+    worker = get_object_or_404(studio.workers, id=worker_id)
+    chat = project.chat
+    
+    # Добавляем работника в чат
+    chat.participants.add(worker)
+    
+    return JsonResponse({'status': 'success'})
+
+@login_required
+@require_POST
+def accept_worker_request(request, request_id):
+    if request.user.user_type != 'studio_owner' or not request.user.is_verified:
+        return JsonResponse({'error': 'Permission denied'}, status=403)
+    
+    worker_request = get_object_or_404(StudioWorkerRequest, id=request_id)
+    studio = worker_request.studio
+    
+    if request.user != studio.owner:
+        return JsonResponse({'error': 'Permission denied'}, status=403)
+    
+    # Проверяем, что работник еще не в студии
+    if worker_request.worker in studio.workers.all():
+        return JsonResponse({'error': 'Worker is already in the studio'}, status=400)
+    
+    # Добавляем работника в студию
+    studio.workers.add(worker_request.worker)
+    worker_request.status = 'accepted'
+    worker_request.save()
+    
+    return JsonResponse({'status': 'success'})
+
+@login_required
+@require_POST
+def reject_worker_request(request, request_id):
+    if request.user.user_type != 'studio_owner' or not request.user.is_verified:
+        return JsonResponse({'error': 'Permission denied'}, status=403)
+    
+    worker_request = get_object_or_404(StudioWorkerRequest, id=request_id)
+    studio = worker_request.studio
+    
+    if request.user != studio.owner:
+        return JsonResponse({'error': 'Permission denied'}, status=403)
+    
+    worker_request.status = 'rejected'
+    worker_request.save()
+    
+    return JsonResponse({'status': 'success'})
+
+@login_required
+def request_to_join_studio(request, studio_id):
+    if request.user.user_type != 'studio_worker':
+        messages.error(request, 'Только работники студии могут отправлять заявки на вступление.')
+        return redirect('studios:available_studios')
+    
+    studio = get_object_or_404(Studio, id=studio_id)
+    
+    if request.method == 'POST':
+        # Проверяем, не является ли пользователь уже работником студии
+        if request.user in studio.workers.all():
+            messages.error(request, 'Вы уже являетесь работником этой студии.')
+            return redirect('studios:available_studios')
+        
+        # Проверяем, нет ли уже активной заявки или заявки в любом статусе
+        existing_request = StudioWorkerRequest.objects.filter(
+            studio=studio,
+            worker=request.user
+        ).first()
+        
+        if existing_request:
+            if existing_request.status == 'pending':
+                messages.error(request, 'У вас уже есть активная заявка на вступление в эту студию.')
+            elif existing_request.status == 'accepted':
+                messages.error(request, 'Вы уже были приняты в эту студию.')
+            elif existing_request.status == 'rejected':
+                messages.error(request, 'Ваша предыдущая заявка была отклонена.')
+            return redirect('studios:available_studios')
+        
+        try:
+            # Создаем новую заявку
+            message = request.POST.get('message', '')
+            worker_request = StudioWorkerRequest.objects.create(
+                studio=studio,
+                worker=request.user,
+                message=message
+            )
+            
+            messages.success(request, 'Заявка на вступление в студию успешно отправлена.')
+        except Exception as e:
+            messages.error(request, 'Произошла ошибка при отправке заявки. Пожалуйста, попробуйте позже.')
+    
+    return redirect('studios:available_studios')
+
+@login_required
+def available_studios_view(request):
+    if request.user.user_type != 'studio_worker':
+        return render(request, 'errors/403.html', status=403)
+    
+    # Получаем все студии, в которых пользователь еще не работает
+    studios = Studio.objects.exclude(workers=request.user).select_related('owner')
+    
+    return render(request, 'studios/available_studios.html', {
+        'studios': studios
+    })
+
+@login_required
+def dismiss_worker(request, studio_id, worker_id):
+    if request.user.user_type != 'studio_owner' or not request.user.is_verified:
+        return render(request, 'errors/403.html', status=403)
+    
+    studio = get_object_or_404(Studio, id=studio_id, owner=request.user)
+    worker = get_object_or_404(User, id=worker_id)
+    
+    if request.method == 'POST':
+        if worker in studio.workers.all():
+            studio.workers.remove(worker)
+            messages.success(request, f'Сотрудник {worker.get_full_name()} успешно уволен из студии.')
+        else:
+            messages.error(request, 'Этот пользователь не является сотрудником студии.')
+    
+    return redirect('studios:studio_workers', studio_id=studio_id)
+
+@login_required
+def studio_project_detail_view(request, studio_id, project_id):
+    """Детальный просмотр проекта студии"""
+    studio = get_object_or_404(Studio, id=studio_id, owner=request.user)
+    project = get_object_or_404(Project, id=project_id, studio=studio)
+    
+    context = {
+        'studio': studio,
+        'project': project,
+        'workers': studio.workers.all(),
+        'messages': project.chat.messages.all().order_by('-created_at')[:50],
+    }
+    
+    return render(request, 'studios/studio_project_detail.html', context)

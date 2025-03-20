@@ -118,17 +118,18 @@ def studio_worker_dashboard(request):
         return redirect('profile')
     return render(request, 'users/dashboards/studio_worker_dashboard.html')
 
-# def update_profile(request):
-#     if request.method == 'POST':
-#         try:
-#             profile = request.user.userprofile
-#         except UserProfile.DoesNotExist:
-#             profile = UserProfile.objects.create(user=request.user)
+@login_required
+def update_profile(request):
+    if request.method == 'POST':
+        try:
+            profile = request.user.userprofile
+        except UserProfile.DoesNotExist:
+            profile = UserProfile.objects.create(user=request.user)
 
-#         profile.bio = request.POST.get('bio', '')
-#         profile.genres = request.POST.get('genres', '').split(', ')
-#         profile.instruments = request.POST.get('instruments', '').split(', ')
-#         profile.social_links = eval(request.POST.get('social_links', '{}'))  # Осторожно с eval
-#         profile.save()
-#         return redirect('profile')
-#     return redirect('profile')
+        profile.bio = request.POST.get('bio', '')
+        profile.genres = request.POST.get('genres', '').split(', ')
+        profile.instruments = request.POST.get('instruments', '').split(', ')
+        profile.social_links = eval(request.POST.get('social_links', '{}'))  # Осторожно с eval
+        profile.save()
+        return redirect('profile')
+    return redirect('profile')

@@ -1,49 +1,76 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block title %}Profile{% endblock %}
+{% block title %}
+  Profile
+{% endblock %}
 
 {% block content %}
-    <h2>Profile</h2>
-    <p><strong>Username:</strong> {{ user.username }}</p>
-    <p><strong>Роль:</strong> {{ user.user_type }}</p>
-    <p><strong>Email:</strong> {{ user.email }}</p>
-    <p><strong>Bio:</strong> {{ user.userprofile.bio }}</p>
-    <p><strong>Genres:</strong> {{ user.userprofile.genres|join:", " }}</p>
-    <p><strong>Instruments:</strong> {{ user.userprofile.instruments|join:", " }}</p>
-    <p><strong>Social Links:</strong> {{ user.userprofile.social_links }}</p>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">Edit Profile</button>
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="mb-0">Profile</h2>
+            <br>
+            <p>
+              <strong>Имя:</strong> {{ user.username }}
+            </p>
+            <p>
+              <strong>Роль:</strong> {{ user.user_type }}
+            </p>
+            <p>
+              <strong>Почта:</strong> {{ user.email }}
+            </p>
+            <p>
+              <strong>О себе:</strong> {{ user.userprofile.bio }}
+            </p>
+            <p>
+              <strong>Жанры:</strong> {{ user.userprofile.genres|join:', ' }}
+            </p>
+            <p>
+              <strong>Инструменты:</strong> {{ user.userprofile.instruments|join:', ' }}
+            </p>
+            <p>
+              <strong>Ссылки:</strong> {{ user.userprofile.social_links }}
+            </p>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">Редактировать профиль</button>
 
-    <!-- Модальное окно для редактирования профиля -->
-    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+            <!-- Модальное окно для редактирования профиля -->
+            <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="editProfileModalLabel">Редактировать профиль</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
+                  </div>
+                  <div class="modal-body">
                     <form id="editProfileForm" method="post" action="/api/users/profile">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label class="form-label">Bio</label>
-                            <textarea name="bio" class="form-control">{{ user.userprofile.bio }}</textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Genres (comma-separated)</label>
-                            <input type="text" name="genres" class="form-control" value="{{ user.userprofile.genres|join:', ' }}">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Instruments (comma-separated)</label>
-                            <input type="text" name="instruments" class="form-control" value="{{ user.userprofile.instruments|join:', ' }}">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Social Links (JSON format)</label>
-                            <input type="text" name="social_links" class="form-control" value="{{ user.userprofile.social_links }}">
-                        </div>
-                        <button type="submit" class="btn btn-success">Save Changes</button>
+                      {% csrf_token %}
+                      <div class="mb-3">
+                        <label class="form-label">О себе</label>
+                        <textarea name="bio" class="form-control">{{ user.userprofile.bio }}</textarea>
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Жанры (через запятую)</label>
+                        <input type="text" name="genres" class="form-control" value="{{ user.userprofile.genres|join:', ' }}" />
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Инструменты (через запятую)</label>
+                        <input type="text" name="instruments" class="form-control" value="{{ user.userprofile.instruments|join:', ' }}" />
+                      </div>
+                      <div class="mb-3">
+                        <label class="form-label">Ссылки (пример: {"vk": "https://vk.com/..."})</label>
+                        <input type="text" name="social_links" class="form-control" value="{{ user.userprofile.social_links }}" />
+                      </div>
+                      <button type="submit" class="btn btn-success">Сохранить измененияя</button>
                     </form>
+                  </div>
                 </div>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 {% endblock %}

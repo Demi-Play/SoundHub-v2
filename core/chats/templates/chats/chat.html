@@ -39,8 +39,6 @@
         margin-top: 0.5rem;
     }
     .file-preview {
-        width: 150px;
-        height: 150px;
         object-fit: cover;
         border-radius: 0.5rem;
         cursor: pointer;
@@ -95,8 +93,8 @@
                             <div class="file-input-container">
                                 <button class="btn btn-outline-secondary" type="button">
                                     <i class="fas fa-paperclip"></i>
-                                </button>
                                 <input type="file" name="files" multiple class="file-input" id="file-input">
+                            </button>
                             </div>
                             <button type="submit" class="btn btn-primary">Отправить</button>
                         </div>
@@ -116,6 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const messageForm = document.getElementById('message-form');
     const fileInput = document.getElementById('file-input');
     const filePreview = document.getElementById('file-preview');
+    const chatId = '{{ chat.id }}';
 
     // Прокрутка к последнему сообщению
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -168,14 +167,27 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Отметка сообщений как прочитанных
-    const markMessageAsRead = (messageId) => {
-        fetch('/chats/mark-as-read/', {
+    const markMessagesAsRead = () => {
+        fetch('{% url "chats:mark_as_read" %}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
             },
-            body: JSON.stringify({ message_id: messageId })
+            body: JSON.stringify({ chat_id: chatId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Удаляем уведомление о непрочитанном сообщении
+                const alert = document.querySelector('.alert');
+                //if (alert) {
+                    alert.remove();
+                //}
+            }
+        })
+        .catch(error => {
+            console.error('Error marking messages as read:', error);
         });
     };
 
@@ -183,10 +195,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                const messageId = entry.target.dataset.messageId;
-                if (messageId) {
-                    markMessageAsRead(messageId);
-                }
+                markMessagesAsRead();
             }
         });
     });
@@ -195,6 +204,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.message[data-message-id]').forEach(message => {
         observer.observe(message);
     });
+
+    // Отмечаем сообщения как прочитанные при загрузке страницы
+    markMessagesAsRead();
 });
 </script>
 {% endblock %} 

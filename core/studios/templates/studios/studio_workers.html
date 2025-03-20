@@ -1,69 +1,82 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 <div class="container mt-4">
     <h2>Сотрудники студии {{ studio.name }}</h2>
-    <div class="card">
+    
+    <!-- Заявки на работу -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Заявки на работу</h4>
+        </div>
         <div class="card-body">
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="list-group">
-                        <a href="{% url 'studios:studio_schedule' studio.id %}" class="list-group-item list-group-item-action">
-                            Расписание
-                        </a>
-                        <a href="#" class="list-group-item list-group-item-action active">
-                            Сотрудники
-                        </a>
-                        <a href="{% url 'studios:studio_projects' studio.id %}" class="list-group-item list-group-item-action">
-                            Проекты
-                        </a>
-                    </div>
+            {% if worker_requests %}
+                <div class="list-group">
+                    {% for request in worker_requests %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-1">{{ request.worker.get_full_name|default:request.worker.username }}</h5>
+                                    <p class="mb-1">Статус: {{ request.get_status_display }}</p>
+                                    <p class="mb-1">Дата подачи: {{ request.created_at|date:"d.m.Y" }}</p>
+                                    {% if request.message %}
+                                        <p class="mb-1">Сообщение: {{ request.message }}</p>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    {% if request.status == 'pending' %}
+                                        <form method="post" action="{% url 'studios:accept_worker_request' request.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-success me-2">Принять</button>
+                                        </form>
+                                        <form method="post" action="{% url 'studios:reject_worker_request' request.id %}" class="d-inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger">Отклонить</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
-                <div class="col-md-9">
-                    <div class="mb-4">
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addWorkerModal">
-                            <i class="bi bi-plus-circle"></i> Добавить сотрудника
-                        </button>
-                    </div>
-                    <div class="workers-list">
-                        <!-- Здесь будет список сотрудников -->
-                        <p class="text-muted">Нет добавленных сотрудников</p>
-                    </div>
-                </div>
-            </div>
+            {% else %}
+                <p class="text-muted">Нет активных заявок на работу</p>
+            {% endif %}
         </div>
     </div>
-</div>
 
-<!-- Модальное окно добавления сотрудника -->
-<div class="modal fade" id="addWorkerModal" tabindex="-1" aria-labelledby="addWorkerModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addWorkerModalLabel">Добавить сотрудника</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="addWorkerForm">
-                    <div class="mb-3">
-                        <label for="workerEmail" class="form-label">Email сотрудника</label>
-                        <input type="email" class="form-control" id="workerEmail" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="workerRole" class="form-label">Роль</label>
-                        <select class="form-select" id="workerRole" required>
-                            <option value="">Выберите роль</option>
-                            <option value="sound_engineer">Звукорежиссер</option>
-                            <option value="producer">Продюсер</option>
-                            <option value="manager">Менеджер</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                <button type="submit" form="addWorkerForm" class="btn btn-primary">Добавить</button>
-            </div>
+    <!-- Список сотрудников -->
+    <div class="card">
+        <div class="card-header">
+            <h4>Текущие сотрудники</h4>
+        </div>
+        <div class="card-body">
+            {% if studio.workers.all %}
+                <div class="list-group">
+                    {% for worker in studio.workers.all %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-1">{{ worker.get_full_name|default:worker.username }}</h5>
+                                    <p class="mb-1">Email: {{ worker.email }}</p>
+                                    <p class="mb-1">Дата начала работы: {{ worker.date_joined|date:"d.m.Y" }}</p>
+                                </div>
+                                <div>
+                                    <form method="post" action="{% url 'studios:dismiss_worker' studio.id worker.id %}" class="d-inline" onsubmit="return confirm('Вы уверены, что хотите уволить этого сотрудника?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger">
+                                            <i class="fas fa-user-minus me-1"></i>Уволить
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">В студии пока нет сотрудников</p>
+            {% endif %}
         </div>
     </div>
 </div>

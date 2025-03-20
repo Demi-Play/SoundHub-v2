@@ -1,60 +1,178 @@
 {% load static %}
 
-<div class="message {% if message.sender == user %}own{% endif %}" {% if not message.is_read and message.sender != user %}data-message-id="{{ message.id }}"{% endif %}>
+<div class="message {% if message.sender == user %}message-sent{% else %}message-received{% endif %}" data-message-id="{{ message.id }}">
     <div class="message-content">
-        <div class="d-flex justify-content-between align-items-start mb-2">
-            <div>
-                <strong>{{ message.sender.username }}</strong>
-                <small class="text-muted ms-2">{{ message.created_at|date:"d.m.Y H:i" }}</small>
-            </div>
-            {% if not message.is_read and message.sender == user %}
-                <span class="badge bg-info">Не прочитано</span>
-            {% endif %}
+        <div class="message-header">
+            <span class="message-sender">{{ message.sender.get_full_name|default:message.sender.username }} - {{ message.sender.user_type }}</span>
+            <span class="message-time">{{ message.created_at|date:"H:i" }}</span>
         </div>
         
         {% if message.text %}
-            <p class="mb-2">{{ message.text }}</p>
+            <div class="message-text">{{ message.text }}</div>
         {% endif %}
         
-        {% if message.files.all %}
+        {% if message.files.exists %}
             <div class="message-files">
                 {% for file in message.files.all %}
-                    {% if file.file_type == 'image' %}
-                        <div class="position-relative">
-                            <img src="{{ file.file.url }}" class="file-preview" onclick="window.open('{{ file.file.url }}', '_blank')">
-                            <div class="position-absolute bottom-0 start-0 end-0 bg-dark bg-opacity-50 text-white p-1 small">
-                                {{ file.filename }}
+                    <div class="file-preview">
+                        {% if file.file_type == 'image' %}
+                            <div class="image-preview-container">
+                                <span class="file-name">{{ file.filename }}</span>
+                                <img controls src="http://127.0.0.1:8000/{{ file.file }}" alt="{{ file.filename }}" class="img-fluid preview-image" style="max-height: 300px; cursor: pointer;" onclick="openImagePreview(this.src)">
+                                <div class="image-actions">
+                                    <a href="{% url 'chats:download_file' file.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-download"></i> Скачать
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                    {% elif file.file_type == 'video' %}
-                        <div class="position-relative">
-                            <video class="file-preview" controls>
-                                <source src="{{ file.file.url }}" type="video/mp4">
-                                Ваш браузер не поддерживает видео.
-                            </video>
-                            <div class="position-absolute bottom-0 start-0 end-0 bg-dark bg-opacity-50 text-white p-1 small">
-                                {{ file.filename }}
+                        {% elif file.file_type == 'video' %}
+                            <div class="video-preview-container">
+                                <span class="file-name">{{ file.filename }}</span>
+
+                                <video controls class="video-player" style="max-width: 100%; max-height: 300px;">
+                                    <source src="http://127.0.0.1:8000/{{ file.file }}" type="video/mp4">
+                                    Ваш браузер не поддерживает видео.
+                                </video>
+                                <div class="video-actions">
+                                    <a href="{% url 'chats:download_file' file.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-download"></i> Скачать
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                    {% elif file.file_type == 'audio' %}
-                        <div class="audio-preview">
-                            <audio controls class="w-100">
-                                <source src="{{ file.file.url }}" type="audio/mpeg">
-                                Ваш браузер не поддерживает аудио.
-                            </audio>
-                            <div class="mt-2 small">{{ file.filename }}</div>
-                        </div>
-                    {% else %}
-                        <div class="document-preview">
-                            <i class="fas fa-file fa-2x mb-2"></i>
-                            <div class="small">{{ file.filename }}</div>
-                            <a href="{{ file.file.url }}" class="btn btn-sm btn-primary mt-2" download>
-                                <i class="fas fa-download me-1"></i> Скачать
-                            </a>
-                        </div>
-                    {% endif %}
+                        {% elif file.file_type == 'audio' %}
+                            <div class="audio-preview-container">
+                                <div class="audio-player">
+                                    <span class="file-name">{{ file.filename }}</span>
+                                    
+                                    <audio controls class="w-200">
+                                        <source src="http://127.0.0.1:8000/{{ file.file }}" type="audio/mpeg">
+                                        Ваш браузер не поддерживает аудио.
+                                    </audio>
+                                </div>
+                                <div class="audio-actions">
+                                    <a href="{% url 'chats:download_file' file.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-download"></i> Скачать
+                                    </a>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="file-preview-container">
+                                <div class="file-icon">
+                                    <i class="fas fa-file fa-2x"></i>
+                                </div>
+                                <div class="file-info">
+                                    <span class="file-name">{{ file.filename }}</span>
+                                    <a href="{% url 'chats:download_file' file.id %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-download"></i> Скачать
+                                    </a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
                 {% endfor %}
             </div>
         {% endif %}
     </div>
-</div> 
+</div>
+
+<!-- Модальное окно для предпросмотра изображений -->
+<div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Предпросмотр изображения</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="previewImage" src="" alt="Preview" class="img-fluid">
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.file-preview {
+    margin: 10px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f8f9fa;
+    padding: 10px;
+}
+
+.file-preview img {
+    height: 100px;
+}
+
+.image-preview-container,
+.video-preview-container,
+.audio-preview-container,
+.file-preview-container {
+    position: relative;
+    margin-bottom: 10px;
+}
+
+
+.preview-image {
+    border-radius: 4px;
+    transition: transform 0.2s;
+}
+
+.preview-image:hover {
+    transform: scale(1.02);
+}
+
+.image-actions,
+.video-actions,
+.audio-actions {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.audio-player {
+    background: #fff;
+    padding: 10px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.file-preview-container {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.file-icon {
+    margin-right: 15px;
+    color: #6c757d;
+}
+
+.file-info {
+    flex-grow: 1;
+}
+
+.file-name {
+    display: block;
+    margin-bottom: 5px;
+    word-break: break-all;
+}
+
+#imagePreviewModal .modal-body {
+    padding: 0;
+}
+
+#previewImage {
+    max-height: 80vh;
+    width: auto;
+}
+</style>
+
+<script>
+function openImagePreview(src) {
+    const modal = new bootstrap.Modal(document.getElementById('imagePreviewModal'));
+    document.getElementById('previewImage').src = src;
+    modal.show();
+}
+</script> 

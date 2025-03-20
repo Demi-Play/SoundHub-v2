@@ -16,8 +16,8 @@
                             <a href="{% url 'studios:studio_detail' studio.id %}" class="list-group-item list-group-item-action">
                                 <i class="fas fa-info-circle me-2"></i>Информация о студии
                             </a>
-                            <a href="{% url 'studios:studio_schedule' studio.id %}" class="list-group-item list-group-item-action">
-                                <i class="fas fa-calendar me-2"></i>Расписание
+                            <a href="{% url 'studios:studio_retrieve_update' studio.id %}" class="list-group-item list-group-item-action">
+                                <i class="fas fa-edit me-2"></i>Редактировать студию
                             </a>
                             <a href="{% url 'studios:studio_workers' studio.id %}" class="list-group-item list-group-item-action">
                                 <i class="fas fa-users me-2"></i>Сотрудники

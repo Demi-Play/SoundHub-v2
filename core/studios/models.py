@@ -1,6 +1,7 @@
 # models.py
 from django.db import models
 from users.models import User
+from django.conf import settings
 
 class Studio(models.Model):
     name = models.CharField(max_length=255)
@@ -31,10 +32,10 @@ class StudioStatistics(models.Model):
         
         projects = Project.objects.filter(chat__studio=self.studio)
         self.total_projects = projects.count()
-        self.completed_projects = projects.filter(is_completed=True).count()
+        self.completed_projects = projects.filter(status='completed').count()
         
         # Calculate total revenue from completed projects
-        completed_projects = projects.filter(is_completed=True)
+        completed_projects = projects.filter(status='completed')
         self.total_revenue = sum(project.payment.amount for project in completed_projects if hasattr(project, 'payment'))
         
         # Calculate average rating
@@ -45,3 +46,23 @@ class StudioStatistics(models.Model):
             self.average_rating = 0
             
         self.save()
+
+class StudioWorkerRequest(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'На рассмотрении'),
+        ('accepted', 'Принята'),
+        ('rejected', 'Отклонена')
+    ]
+
+    studio = models.ForeignKey(Studio, on_delete=models.CASCADE, related_name='worker_requests')
+    worker = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='studio_requests')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    message = models.TextField(blank=True)
+
+    class Meta:
+        unique_together = ['studio', 'worker']
+
+    def __str__(self):
+        return f'Заявка {self.worker.get_full_name()} в студию {self.studio.name}'

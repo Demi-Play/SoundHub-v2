@@ -1,0 +1,46 @@
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatContainer = document.querySelector('.chat-messages');
+    const messageForm = document.getElementById('messageForm');
+    const messageInput = document.getElementById('messageInput');
+    const fileInput = document.getElementById('fileInput');
+    let lastMessageId = {{ last_message_id|default:0 }};
+    let isScrolledToBottom = true;
+
+    // Функция для отметки сообщений как прочитанных
+    function markMessagesAsRead() {
+        fetch('{% url "chats:mark_as_read" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: `chat_id={{ chat.id }}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Обновляем счетчик непрочитанных сообщений
+                updateUnreadCount();
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Отмечаем сообщения как прочитанные при загрузке страницы
+    markMessagesAsRead();
+
+    // Отмечаем сообщения как прочитанные при прокрутке к последнему сообщению
+    chatContainer.addEventListener('scroll', function() {
+        const isAtBottom = chatContainer.scrollHeight - chatContainer.scrollTop === chatContainer.clientHeight;
+        if (isAtBottom && !isScrolledToBottom) {
+            markMessagesAsRead();
+            isScrolledToBottom = true;
+        } else if (!isAtBottom) {
+            isScrolledToBottom = false;
+        }
+    });
+
+    // ... rest of the existing code ...
+});
+</script> 

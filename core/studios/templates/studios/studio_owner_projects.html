@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Проекты студии</h2>
+        <a href="{% url 'studios:studio_create_project' studio.id %}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Создать проект
+        </a>
+    </div>
+
+    {% if projects %}
+        <div class="row">
+            {% for project in projects %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ project.title }}</h5>
+                            <p class="card-text">{{ project.description|truncatewords:30 }}</p>
+                            <div class="mb-3">
+                                <strong>Статус:</strong> 
+                                <span class="badge {% if project.status == 'completed' %}bg-success{% elif project.status == 'in_progress' %}bg-primary{% else %}bg-secondary{% endif %}">
+                                    {{ project.get_status_display }}
+                                </span>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Дата начала:</strong> {{ project.start_date|date:"d.m.Y" }}
+                            </div>
+                            {% if project.deadline %}
+                                <div class="mb-3">
+                                    <strong>Дедлайн:</strong> {{ project.deadline|date:"d.m.Y" }}
+                                </div>
+                            {% endif %}
+                            <div class="mb-3">
+                                <strong>Бюджет:</strong> {{ project.budget }} ₽
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <a href="{% url 'studios:studio_project_detail' studio.id project.id %}" class="btn btn-info btn-sm">
+                                    <i class="fas fa-eye me-1"></i>Подробнее
+                                </a>
+                                {% if project.status == 'in_progress' %}
+                                    <form method="post" action="{% url 'studios:studio_complete_project' studio.id project.id %}" class="d-inline" onsubmit="return confirm('Вы уверены, что хотите завершить этот проект?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success btn-sm">
+                                            <i class="fas fa-check me-1"></i>Завершить
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            У вас пока нет проектов. Создайте новый проект, чтобы начать работу.
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 
