@@ -195,9 +195,9 @@ soundhub/
 
 Если у вас возникли вопросы или проблемы:
 
-- 📧 Email: support@soundhub.com
+- 📧 Email: chubenkodo@gmail.com
 - 💬 Discord: [SoundHub Community](https://discord.gg/soundhub)
-- 📱 Telegram: [@SoundHubSupport](https://t.me/SoundHubSupport)
+- 📱 Telegram: [@SoundHubSupport](https://t.me/D33M11)
 
 ---
 
