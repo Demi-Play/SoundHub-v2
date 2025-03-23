@@ -63,7 +63,7 @@ def studio_retrieve_update_view(request, studio_id):
         form = StudioForm(request.POST, request.FILES, instance=studio)
         if form.is_valid():
             form.save()
-            return redirect('studio_list')
+            return redirect('studios:studio_list')
     else:
         form = StudioForm(instance=studio)
 

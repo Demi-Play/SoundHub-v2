@@ -3,17 +3,19 @@
 {% block title %}Studio Verification{% endblock %}
 
 {% block content %}
-    <h2>Studio Verification</h2>
-    <p><strong>Status:</strong> {{ verification.status }}</p>
+<div class='container'>
+    <h2>Верификация студии</h2>
+    <p><strong>Статус:</strong> {{ verification.status }}</p>
     {% if verification.document %}
-        <p><strong>Uploaded Document:</strong></p>
-        <a href="{{ verification.document.url }}" target="_blank">View Document</a>
+        <p><strong>Документ:</strong></p>
+        <a href="{{ verification.document.url }}" target="_blank">Загруженный документ</a>
     {% endif %}
 
-    <h3>Upload Verification Documents</h3>
+    <h3>Загрузите документы для верификации</h3>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary">Отправить</button>
     </form>
+</div>
 {% endblock %}

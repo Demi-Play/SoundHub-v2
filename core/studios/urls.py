@@ -44,6 +44,7 @@ urlpatterns = [
     
     # URL для владельцев студий
     path('', studios_list_view, name='studio_list'),
+    path('my/', studio_list_create_view, name='studio_list'),
     path('create/', create_studio_request_view, name='create_studio'),
     path('verify/', studio_verification_view, name='studio_verification'),
     path('<int:studio_id>/edit/', studio_retrieve_update_view, name='studio_retrieve_update'),
