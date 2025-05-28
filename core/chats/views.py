@@ -98,27 +98,21 @@ class ProjectCompleteView(APIView):
 @login_required
 def project_chat(request, project_id):
     project = get_object_or_404(Project, id=project_id)
-    
     # Проверяем права доступа
     if request.user != project.client and request.user != project.studio.owner and request.user not in project.studio.workers.all():
         raise PermissionDenied
-    
     chat, created = Chat.objects.get_or_create(project=project)
     messages = chat.messages.select_related('sender').prefetch_related('files').order_by('created_at')
-    
     if request.method == 'POST':
         text = request.POST.get('message')
         files = request.FILES.getlist('files')
-        
         if text or files:
             message = Message.objects.create(
                 chat=chat,
                 sender=request.user,
                 text=text
             )
-            
             for file in files:
-                # Определяем тип файла по MIME-типу
                 content_type = file.content_type
                 if content_type.startswith('image/'):
                     file_type = 'image'
@@ -128,7 +122,6 @@ def project_chat(request, project_id):
                     file_type = 'audio'
                 else:
                     file_type = 'document'
-
                 File.objects.create(
                     message=message,
                     file=file,
@@ -136,16 +129,13 @@ def project_chat(request, project_id):
                     size=file.size,
                     file_type=file_type
                 )
-            
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 message_html = render_to_string('chats/message.html', {
                     'message': message,
                     'user': request.user
                 })
                 return JsonResponse({'message_html': message_html})
-            
             return redirect('project_chat', project_id=project_id)
-    
     return render(request, 'chats/chat.html', {
         'project': project,
         'chat': chat,

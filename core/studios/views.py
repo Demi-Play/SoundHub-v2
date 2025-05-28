@@ -30,12 +30,10 @@ def studio_list_create_view(request):
 
     studios = Studio.objects.filter(owner=request.user)
     has_studio = studios.exists()
-
     if request.method == 'POST':
         if has_studio:
-            messages.error(request, 'У вас уже есть студия. Создание дополнительных студий не разрешено.')
+            messages.error(request, 'У вас уже есть студия. Создание дополнительных студий с этой подпиской не доступно.')
             return redirect('studio_list')
-            
         form = StudioForm(request.POST, request.FILES)
         if form.is_valid():
             studio = form.save(commit=False)
@@ -45,7 +43,6 @@ def studio_list_create_view(request):
             return redirect('studio_list')
     else:
         form = StudioForm()
-
     return render(request, 'studio_list.html', {
         'studios': studios,
         'form': form,
@@ -426,7 +423,7 @@ def add_worker_to_chat(request, project_id):
 @login_required
 @require_POST
 def accept_worker_request(request, request_id):
-    if request.user.user_type != 'studio_owner' or not request.user.is_verified:
+    if request.user.user_type != 'studio_owner':
         return JsonResponse({'error': 'Permission denied'}, status=403)
     
     worker_request = get_object_or_404(StudioWorkerRequest, id=request_id)
