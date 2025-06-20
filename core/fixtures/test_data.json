@@ -1,0 +1,142 @@
+[
+    {
+        "model": "users.user",
+        "pk": 100,
+        "fields": {
+            "username": "test_studio_owner",
+            "password": "pbkdf2_sha256$600000$your_hash_here",
+            "email": "test_owner@soundhub.com",
+            "first_name": "Test",
+            "last_name": "Owner",
+            "user_type": "studio_owner",
+            "is_verified": true,
+            "is_staff": false,
+            "is_superuser": false,
+            "is_active": true,
+            "date_joined": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "users.user",
+        "pk": 101,
+        "fields": {
+            "username": "test_musician",
+            "password": "pbkdf2_sha256$600000$your_hash_here",
+            "email": "test_musician@soundhub.com",
+            "first_name": "Test",
+            "last_name": "Musician",
+            "user_type": "musician",
+            "is_verified": true,
+            "is_staff": false,
+            "is_superuser": false,
+            "is_active": true,
+            "date_joined": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "users.userprofile",
+        "pk": 100,
+        "fields": {
+            "user": 100,
+            "bio": "Test studio owner profile",
+            "social_links": {"instagram": "@test_owner", "facebook": "test_owner"},
+            "instruments": [],
+            "genres": []
+        }
+    },
+    {
+        "model": "users.userprofile",
+        "pk": 101,
+        "fields": {
+            "user": 101,
+            "bio": "Test musician profile",
+            "social_links": {"instagram": "@test_musician", "facebook": "test_musician"},
+            "instruments": ["guitar", "piano"],
+            "genres": ["rock", "jazz"]
+        }
+    },
+    {
+        "model": "studios.studio",
+        "pk": 100,
+        "fields": {
+            "name": "Test Studio",
+            "owner": 100,
+            "description": "Test recording studio",
+            "address": "Test Street, City",
+            "equipment_list": ["Test Microphone", "Test Console", "Test DAW"],
+            "pricing": {"recording": 100, "mixing": 150, "mastering": 200},
+            "commission_percent": 10.00
+        }
+    },
+    {
+        "model": "studios.studioverification",
+        "pk": 100,
+        "fields": {
+            "user": 100,
+            "status": "approved"
+        }
+    },
+    {
+        "model": "studios.studiostatistics",
+        "pk": 100,
+        "fields": {
+            "studio": 100,
+            "total_projects": 5,
+            "completed_projects": 3,
+            "total_revenue": 2000.00,
+            "average_rating": 4.5,
+            "last_updated": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "chats.project",
+        "pk": 100,
+        "fields": {
+            "title": "Test Project",
+            "description": "Test music project",
+            "client": 101,
+            "studio": 100,
+            "status": "completed",
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-15T00:00:00Z"
+        }
+    },
+    {
+        "model": "ratings.rating",
+        "pk": 100,
+        "fields": {
+            "project": 100,
+            "rated_by": 101,
+            "score": 5,
+            "comment": "Great test experience",
+            "created_at": "2024-01-15T00:00:00Z"
+        }
+    },
+    {
+        "model": "payments.wallet",
+        "pk": 100,
+        "fields": {
+            "user": 100,
+            "balance": 2000.00
+        }
+    },
+    {
+        "model": "payments.wallet",
+        "pk": 101,
+        "fields": {
+            "user": 101,
+            "balance": 1000.00
+        }
+    },
+    {
+        "model": "payments.payment",
+        "pk": 100,
+        "fields": {
+            "studio": 100,
+            "payer": 101,
+            "amount": 500.00,
+            "service_type": "recording",
+            "is_processed": true
+        }
+    }
+] 

@@ -1,0 +1,142 @@
+[
+    {
+        "model": "users.user",
+        "pk": 100,
+        "fields": {
+            "username": "ivan_studio",
+            "password": "pbkdf2_sha256$600000$your_hash_here",
+            "email": "ivan@soundhub.com",
+            "first_name": "Иван",
+            "last_name": "Петров",
+            "user_type": "studio_owner",
+            "is_verified": true,
+            "is_staff": false,
+            "is_superuser": false,
+            "is_active": true,
+            "date_joined": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "users.user",
+        "pk": 101,
+        "fields": {
+            "username": "maria_music",
+            "password": "pbkdf2_sha256$600000$your_hash_here",
+            "email": "maria@soundhub.com",
+            "first_name": "Мария",
+            "last_name": "Смирнова",
+            "user_type": "musician",
+            "is_verified": true,
+            "is_staff": false,
+            "is_superuser": false,
+            "is_active": true,
+            "date_joined": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "users.userprofile",
+        "pk": 100,
+        "fields": {
+            "user": 100,
+            "bio": "Профессиональная студия звукозаписи",
+            "social_links": {"instagram": "@ivan_studio", "facebook": "ivan_studio"},
+            "instruments": [],
+            "genres": []
+        }
+    },
+    {
+        "model": "users.userprofile",
+        "pk": 101,
+        "fields": {
+            "user": 101,
+            "bio": "Вокалистка и композитор",
+            "social_links": {"instagram": "@maria_music", "facebook": "maria_music"},
+            "instruments": ["фортепиано", "гитара"],
+            "genres": ["поп", "джаз"]
+        }
+    },
+    {
+        "model": "studios.studio",
+        "pk": 100,
+        "fields": {
+            "name": "ЗвукоМастер",
+            "owner": 100,
+            "description": "Современная студия звукозаписи с профессиональным оборудованием",
+            "address": "ул. Звукозаписи, 42, Москва",
+            "equipment_list": ["Neumann U87", "SSL 4000", "Pro Tools HD"],
+            "pricing": {"recording": 5000, "mixing": 8000, "mastering": 10000},
+            "commission_percent": 10.00
+        }
+    },
+    {
+        "model": "studios.studioverification",
+        "pk": 100,
+        "fields": {
+            "user": 100,
+            "status": "approved"
+        }
+    },
+    {
+        "model": "studios.studiostatistics",
+        "pk": 100,
+        "fields": {
+            "studio": 100,
+            "total_projects": 25,
+            "completed_projects": 20,
+            "total_revenue": 500000.00,
+            "average_rating": 4.8,
+            "last_updated": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "chats.project",
+        "pk": 100,
+        "fields": {
+            "title": "Альбом 'Новые Горизонты'",
+            "description": "Запись и сведение дебютного альбома",
+            "client": 101,
+            "studio": 100,
+            "status": "completed",
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-15T00:00:00Z"
+        }
+    },
+    {
+        "model": "ratings.rating",
+        "pk": 100,
+        "fields": {
+            "project": 100,
+            "rated_by": 101,
+            "score": 5,
+            "comment": "Отличная студия, профессиональное оборудование и специалисты",
+            "created_at": "2024-01-15T00:00:00Z"
+        }
+    },
+    {
+        "model": "payments.wallet",
+        "pk": 100,
+        "fields": {
+            "user": 100,
+            "balance": 50000.00
+        }
+    },
+    {
+        "model": "payments.wallet",
+        "pk": 101,
+        "fields": {
+            "user": 101,
+            "balance": 25000.00
+        }
+    },
+    {
+        "model": "payments.payment",
+        "pk": 100,
+        "fields": {
+            "studio": 100,
+            "payer": 101,
+            "amount": 15000.00,
+            "service_type": "recording",
+            "is_processed": true
+        }
+    }
+] 

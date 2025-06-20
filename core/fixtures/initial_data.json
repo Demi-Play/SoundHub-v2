@@ -1,0 +1,162 @@
+[
+    {
+        "model": "users.user",
+        "pk": 1,
+        "fields": {
+            "username": "admin_test",
+            "password": "pbkdf2_sha256$600000$your_hash_here",
+            "email": "admin@soundhub.com",
+            "first_name": "Admin",
+            "last_name": "User",
+            "user_type": "studio_owner",
+            "is_verified": true,
+            "is_staff": true,
+            "is_superuser": true,
+            "is_active": true,
+            "date_joined": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "users.user",
+        "pk": 2,
+        "fields": {
+            "username": "studio_owner1",
+            "password": "pbkdf2_sha256$600000$your_hash_here",
+            "email": "owner1@soundhub.com",
+            "first_name": "John",
+            "last_name": "Doe",
+            "user_type": "studio_owner",
+            "is_verified": true,
+            "is_staff": false,
+            "is_superuser": false,
+            "is_active": true,
+            "date_joined": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "users.user",
+        "pk": 3,
+        "fields": {
+            "username": "musician1",
+            "password": "pbkdf2_sha256$600000$your_hash_here",
+            "email": "musician1@soundhub.com",
+            "first_name": "Alice",
+            "last_name": "Smith",
+            "user_type": "musician",
+            "is_verified": true,
+            "is_staff": false,
+            "is_superuser": false,
+            "is_active": true,
+            "date_joined": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "users.userprofile",
+        "pk": 1,
+        "fields": {
+            "user": 1,
+            "bio": "System administrator",
+            "social_links": {"instagram": "@admin_test", "facebook": "admin_test"},
+            "instruments": [],
+            "genres": []
+        }
+    },
+    {
+        "model": "users.userprofile",
+        "pk": 2,
+        "fields": {
+            "user": 2,
+            "bio": "Professional studio owner with 10 years of experience",
+            "social_links": {"instagram": "@studio_owner1", "facebook": "studio_owner1"},
+            "instruments": [],
+            "genres": []
+        }
+    },
+    {
+        "model": "users.userprofile",
+        "pk": 3,
+        "fields": {
+            "user": 3,
+            "bio": "Professional guitarist and vocalist",
+            "social_links": {"instagram": "@musician1", "facebook": "musician1"},
+            "instruments": ["guitar", "vocals"],
+            "genres": ["rock", "blues"]
+        }
+    },
+    {
+        "model": "studios.studio",
+        "pk": 1,
+        "fields": {
+            "name": "SoundWave Studio",
+            "owner": 2,
+            "description": "Professional recording studio with state-of-the-art equipment",
+            "address": "123 Music Street, City",
+            "equipment_list": ["Neumann U87", "SSL Console", "Pro Tools HD"],
+            "pricing": {"recording": 100, "mixing": 150, "mastering": 200},
+            "commission_percent": 10.00
+        }
+    },
+    {
+        "model": "studios.studioverification",
+        "pk": 1,
+        "fields": {
+            "user": 2,
+            "status": "approved"
+        }
+    },
+    {
+        "model": "studios.studiostatistics",
+        "pk": 1,
+        "fields": {
+            "studio": 1,
+            "total_projects": 15,
+            "completed_projects": 10,
+            "total_revenue": 5000.00,
+            "average_rating": 4.5,
+            "last_updated": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "chats.project",
+        "pk": 1,
+        "fields": {
+            "title": "Rock Album Recording",
+            "description": "Full album recording for rock band",
+            "client": 3,
+            "studio": 1,
+            "status": "completed",
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-15T00:00:00Z"
+        }
+    },
+    {
+        "model": "ratings.rating",
+        "pk": 1,
+        "fields": {
+            "project": 1,
+            "rated_by": 3,
+            "score": 5,
+            "comment": "Excellent service and professional equipment",
+            "created_at": "2024-01-15T00:00:00Z"
+        }
+    },
+    {
+        "model": "payments.wallet",
+        "pk": 1,
+        "fields": {
+            "user": 2,
+            "balance": 5000.00
+        }
+    },
+    {
+        "model": "payments.payment",
+        "pk": 1,
+        "fields": {
+            "studio": 1,
+            "payer": 3,
+            "amount": 1000.00,
+            "service_type": "recording",
+            "is_processed": true
+        }
+    }
+] 
